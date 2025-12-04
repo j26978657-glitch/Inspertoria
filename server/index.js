@@ -8,9 +8,12 @@ app.use(express.json({ limit: '10mb' }));
 app.use(cors());
 
 const DATABASE_URL = process.env.DATABASE_URL || process.env.POSTGRES_URL || '';
-const pool = new Pool({ connectionString: DATABASE_URL, ssl: { rejectUnauthorized: false } });
+const HAS_DB = !!DATABASE_URL;
+const useSSL = /neon\.tech|sslmode=require|render/i.test(DATABASE_URL);
+const pool = HAS_DB ? new Pool({ connectionString: DATABASE_URL, ssl: useSSL ? { rejectUnauthorized: false } : false }) : null;
 
 async function ensureSchema() {
+  if(!pool) return; 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS carousel (
       id SERIAL PRIMARY KEY,
@@ -56,6 +59,9 @@ async function ensureSchema() {
       ON CONFLICT (id) DO NOTHING;
   `);
 }
+
+// DB guard for API when no database configured
+app.use('/api', (req,res,next)=>{ if(!pool) return res.status(503).json({ error: 'base de datos no configurada' }); next(); });
 
 // Carousel
 app.get('/api/carousel', async (req, res) => {
@@ -171,4 +177,3 @@ ensureSchema().then(() => {
   console.error('Error inicializando esquema', e);
   process.exit(1);
 });
-
