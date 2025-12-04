@@ -7,7 +7,9 @@ const app = express();
 app.use(express.json({ limit: '10mb' }));
 app.use(cors());
 
-const DATABASE_URL = process.env.DATABASE_URL || process.env.POSTGRES_URL || '';
+const RAW_DB_URL = process.env.DATABASE_URL || process.env.POSTGRES_URL || '';
+const VALID_DB_URL = /^postgres(ql)?:\/\/[^@]+@[^/]+\/[^?]+/i.test(RAW_DB_URL);
+const DATABASE_URL = VALID_DB_URL ? RAW_DB_URL : '';
 const HAS_DB = !!DATABASE_URL;
 const useSSL = /neon\.tech|sslmode=require|render/i.test(DATABASE_URL);
 const pool = HAS_DB ? new Pool({ connectionString: DATABASE_URL, ssl: useSSL ? { rejectUnauthorized: false } : false }) : null;
@@ -185,8 +187,8 @@ app.get('/api/denuncias', async (req, res) => {
   const p = [];
   if (from || to) {
     q += ' WHERE 1=1';
-    if (from) { p.push(from); q += ` AND fecha >= ${p.length}`; }
-    if (to) { p.push(to); q += ` AND fecha <= ${p.length}`; }
+    if (from) { p.push(from); q += ` AND fecha >= $${p.length}`; }
+    if (to) { p.push(to); q += ` AND fecha <= $${p.length}`; }
   }
   q += ' ORDER BY fecha DESC, id DESC';
   const { rows } = p.length ? await pool.query(q, p) : await pool.query(q);
