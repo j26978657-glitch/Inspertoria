@@ -4,7 +4,7 @@ const { Pool } = require('pg');
 const path = require('path');
 
 const app = express();
-app.use(express.json({ limit: '25mb' }));
+app.use(express.json({ limit: '50mb' }));
 app.use(cors());
 
 const RAW_DB_URL = process.env.DATABASE_URL || process.env.POSTGRES_URL || '';

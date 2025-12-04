@@ -231,6 +231,8 @@ document.addEventListener('DOMContentLoaded',function(){
       e.preventDefault();
       var files=(adjFinal&&adjFinal.files)?Array.prototype.slice.call(adjFinal.files):[];
       html2canvas(form).then(function(canvas){
+        var maxW=1280;var scale=Math.min(1,maxW/canvas.width);
+        if(scale<1){var oc=document.createElement('canvas');oc.width=Math.round(canvas.width*scale);oc.height=Math.round(canvas.height*scale);var ctx=oc.getContext('2d');ctx.drawImage(canvas,0,0,oc.width,oc.height);canvas=oc;}
         var img=canvas.toDataURL('image/png');
         function readFile(f){
           return new Promise(function(resolve){
