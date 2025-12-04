@@ -109,13 +109,24 @@ document.addEventListener('DOMContentLoaded',function(){
     if(params.length)url+='?'+params.join('&');
     fetch(url).then(function(r){return r.json()}).then(function(items){
       tbody.innerHTML=items.map(function(d){
-        return '<tr><td>'+(d.fecha||'')+'</td><td>'+(d.hora||'')+'</td><td><button class="btn ghost" data-id="'+d.id+'">Descargar imagen</button></td></tr>';
+        return '<tr><td>'+(d.fecha||'')+'</td><td>'+(d.hora||'')+'</td><td><button class="btn ghost" data-id="'+d.id+'">Descargar denuncia</button></td></tr>';
       }).join('');
       Array.prototype.slice.call(tbody.querySelectorAll('button[data-id]')).forEach(function(btn){
         btn.addEventListener('click',function(){
           var id=parseInt(btn.getAttribute('data-id'),10);
           fetch(API_BASE+'/api/denuncias/'+id).then(function(r){return r.json()}).then(function(it){
-            if(!(it&&it.image))return;var a=document.createElement('a');a.href=it.image;a.download='denuncia-'+it.id+'.png';document.body.appendChild(a);a.click();document.body.removeChild(a);
+            if(it&&it.image){var a=document.createElement('a');a.href=it.image;a.download='denuncia-'+it.id+'.png';document.body.appendChild(a);a.click();document.body.removeChild(a);} 
+            if(it&&it.attachments&&it.attachments.length){
+              it.attachments.forEach(function(att,idx){
+                if(!att||!att.data)return;
+                setTimeout(function(){
+                  var b=document.createElement('a');
+                  b.href=att.data;
+                  b.download=(att.name||('adjunto-'+(idx+1)));
+                  document.body.appendChild(b);b.click();document.body.removeChild(b);
+                },200*(idx+1));
+              });
+            }
           });
         });
       });
@@ -131,7 +142,13 @@ document.addEventListener('DOMContentLoaded',function(){
     if(params.length)url+='?'+params.join('&');
     fetch(url).then(function(r){return r.json()}).then(function(items){
       items.forEach(function(it,idx){
-        if(!it.image)return;setTimeout(function(){var a=document.createElement('a');a.href=it.image;a.download='denuncia-'+(it.id||idx)+'.png';document.body.appendChild(a);a.click();document.body.removeChild(a);},idx*200);
+        if(it.image){setTimeout(function(){var a=document.createElement('a');a.href=it.image;a.download='denuncia-'+(it.id||idx)+'.png';document.body.appendChild(a);a.click();document.body.removeChild(a);},idx*300);} 
+        if(it.attachments&&it.attachments.length){
+          it.attachments.forEach(function(att,j){
+            if(!att||!att.data)return;
+            setTimeout(function(){var b=document.createElement('a');b.href=att.data;b.download=(att.name||('adjunto-'+(j+1)));document.body.appendChild(b);b.click();document.body.removeChild(b);},idx*300+(j+1)*150);
+          });
+        }
       });
     });
   })}
@@ -212,12 +229,22 @@ document.addEventListener('DOMContentLoaded',function(){
       if(adjFinal&&adjFinal.files&&adjFinal.files.length>5){valid=false;showMessage('Validación','Máximo 5 archivos adjuntos')}
       if(!valid){e.preventDefault();return}
       e.preventDefault();
+      var files=(adjFinal&&adjFinal.files)?Array.prototype.slice.call(adjFinal.files):[];
       html2canvas(form).then(function(canvas){
         var img=canvas.toDataURL('image/png');
-        var fd=new FormData(form);var data={};fd.forEach(function(v,k){
-          if(v&&v.name){data[k]=v.name}else{data[k]=v}
+        function readFile(f){
+          return new Promise(function(resolve){
+            var r=new FileReader();
+            r.onload=function(){resolve({name:f.name||'adjunto',type:f.type||'',data:r.result})};
+            r.readAsDataURL(f);
+          });
+        }
+        return Promise.all(files.map(readFile)).then(function(att){
+          var fd=new FormData(form);var data={};fd.forEach(function(v,k){
+            if(v&&v.name){data[k]=v.name}else{data[k]=v}
+          });
+          return fetch(API_BASE+'/api/denuncias',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fecha:data.fecha,hora:data.hora,image:img,data:data,attachments:att})});
         });
-        return fetch(API_BASE+'/api/denuncias',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fecha:data.fecha,hora:data.hora,image:img,data:data})});
       }).then(function(){
         showMessage('Éxito','Denuncia enviada. Gracias por su reporte.');
         form.reset();

@@ -4,7 +4,7 @@ const { Pool } = require('pg');
 const path = require('path');
 
 const app = express();
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '25mb' }));
 app.use(cors());
 
 const RAW_DB_URL = process.env.DATABASE_URL || process.env.POSTGRES_URL || '';
@@ -67,6 +67,7 @@ async function ensureSchema() {
       data JSONB,
       created_at TIMESTAMP DEFAULT NOW()
     );
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS attachments JSONB;
   `);
 }
 
@@ -176,9 +177,12 @@ app.post('/api/footer', async (req, res) => {
 
 // Denuncias
 app.post('/api/denuncias', async (req, res) => {
-  const { fecha, hora, image, data } = req.body;
+  const { fecha, hora, image, data, attachments } = req.body;
   if (!fecha || !image) return res.status(400).json({ error: 'campos requeridos' });
-  const { rows } = await pool.query('INSERT INTO denuncias (fecha, hora, image, data) VALUES ($1, $2, $3, $4) RETURNING *', [fecha, hora || null, image, data || null]);
+  const { rows } = await pool.query(
+    'INSERT INTO denuncias (fecha, hora, image, data, attachments) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+    [fecha, hora || null, image, data || null, attachments || null]
+  );
   res.json(rows[0]);
 });
 app.get('/api/denuncias', async (req, res) => {
