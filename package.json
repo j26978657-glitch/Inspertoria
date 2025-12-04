@@ -1,0 +1,19 @@
+{
+  "name": "inspectoria",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sitio de Departamento Nacional de Inspectoría con panel admin y API",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "pg": "^8.13.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

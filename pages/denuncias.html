@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Formulario de Denuncias — Departamento Nacional de Inspectoría</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<header class="header" id="header">
+  <div class="header-top">
+    <div class="logo left">[LOGO_INSTITUCION_IZQUIERDA]</div>
+    <nav class="nav" id="nav">
+      <button class="hamburger" id="hamburger" aria-label="Abrir menú" aria-expanded="false">☰</button>
+      <ul class="menu" id="menu">
+        <li><a href="../index.html">Inicio</a></li>
+        <li class="has-submenu">
+          <a href="institucion.html">Institución</a>
+          <ul class="submenu">
+            <li><a href="mision-vision.html">Misión – Visión</a></li>
+            <li><a href="organigrama.html">Organigrama</a></li>
+            <li><a href="historia.html">Historia</a></li>
+            <li><a href="inspectorias.html">Inspectorías Departamentales</a></li>
+          </ul>
+        </li>
+        <li><a href="marco-legal.html">Marco Legal</a></li>
+        <li><a href="galeria.html">Galería</a></li>
+        <li><a href="denuncias.html">Formulario de Denuncias</a></li>
+      </ul>
+    </nav>
+    <div class="logo right">[LOGO_INSTITUCION_DERECHA]</div>
+  </div>
+  <div class="header-bar"></div>
+</header>
+
+
+<section class="denuncias" id="denuncias">
+  <div class="container">
+    <h2>Formulario de Denuncia</h2>
+    <div class="notice">
+      <p>El presente formulario recibe denuncias de posibles actos de corrupción y/o negativa injustificada de acceso a la información por funcionarios policiales y será revisado por el Departamento Nacional de Transparencia de la Policía Boliviana. La denuncia puede ser con reserva de identidad o anónima, pero es importante que usted registre al menos un correo electrónico.</p>
+    </div>
+
+    <form class="form" id="formDenuncia" novalidate>
+
+      <div class="section-card">
+        <h3>Datos del Denunciante</h3>
+        <div class="form-grid">
+          <div class="form-field full">
+            <label for="dn_nombrecompleto">Apellidos y Nombres</label>
+            <input type="text" id="dn_nombrecompleto" name="dn_nombrecompleto">
+          </div>
+          <div class="form-field">
+            <label for="dn_ci">CI</label>
+            <input type="text" id="dn_ci" name="dn_ci">
+          </div>
+          <div class="form-field">
+            <label for="dn_departamento">Departamento</label>
+            <select id="dn_departamento" name="dn_departamento">
+              <option value="">Seleccione</option>
+              <option>La Paz</option>
+              <option>Cochabamba</option>
+              <option>Santa Cruz</option>
+              <option>Oruro</option>
+              <option>Potosí</option>
+              <option>Chuquisaca</option>
+              <option>Tarija</option>
+              <option>Beni</option>
+              <option>Pando</option>
+            </select>
+          </div>
+          <div class="form-field full">
+            <label for="dn_direccion">Dirección</label>
+            <input type="text" id="dn_direccion" name="dn_direccion">
+          </div>
+          <div class="form-field">
+            <label for="dn_correo">Correo electrónico</label>
+            <input type="email" id="dn_correo" name="dn_correo" required>
+          </div>
+          <div class="form-field">
+            <label for="dn_telefono">Teléfono</label>
+            <input type="tel" id="dn_telefono" name="dn_telefono">
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h3>Datos del Denunciado</h3>
+        <div class="form-grid">
+          <div class="form-field full">
+            <label for="dd_grado_nombres">Grado, apellidos y nombres</label>
+            <input type="text" id="dd_grado_nombres" name="dd_grado_nombres">
+          </div>
+          <div class="form-field">
+            <label for="dd_lugar">Lugar del hecho</label>
+            <input type="text" id="dd_lugar" name="dd_lugar">
+          </div>
+          <div class="form-field">
+            <label for="dd_unidad">Unidad policial</label>
+            <input type="text" id="dd_unidad" name="dd_unidad">
+          </div>
+          <div class="form-field">
+            <label for="dd_cargo">Cargo y función que cumple (referencial)</label>
+            <input type="text" id="dd_cargo" name="dd_cargo">
+          </div>
+          <div class="form-field">
+            <label for="dd_departamento">Departamento</label>
+            <select id="dd_departamento" name="dd_departamento">
+              <option value="">Seleccione</option>
+              <option>La Paz</option>
+              <option>Cochabamba</option>
+              <option>Santa Cruz</option>
+              <option>Oruro</option>
+              <option>Potosí</option>
+              <option>Chuquisaca</option>
+              <option>Tarija</option>
+              <option>Beni</option>
+              <option>Pando</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h3>Tipo de denuncia</h3>
+        <div class="radio-group">
+          <label><input type="radio" id="tipo_corrupcion" name="tipo_denuncia" value="corrupcion"> Posibles actos de corrupción</label>
+          <label><input type="radio" id="tipo_negativa" name="tipo_denuncia" value="negativa"> Negativa injustificada de acceso a la información</label>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h3>Breve relación del hecho</h3>
+        <div class="form-field full">
+          <textarea id="descripcion" name="descripcion" rows="18" class="lined big" required></textarea>
+        </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="fecha">Fecha</label>
+            <input type="date" id="fecha" name="fecha" required>
+          </div>
+          <div class="form-field">
+            <label for="hora">Hora aproximada</label>
+            <input type="time" id="hora" name="hora" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h3>Documentación que se adjunta</h3>
+        <div class="form-field full">
+          <textarea id="doc_adjunta" name="doc_adjunta" rows="10" class="lined"></textarea>
+        </div>
+        <div class="form-field">
+          <label for="num_fojas">Número de fojas</label>
+          <input type="text" id="num_fojas" name="num_fojas">
+        </div>
+        <div class="form-field">
+          <label>Reserva de identidad</label>
+          <div class="radio-group">
+            <label><input type="radio" name="reserva" value="si" id="reservaSi"> Si</label>
+            <label><input type="radio" name="reserva" value="no" id="reservaNo" checked> No</label>
+          </div>
+        </div>
+        <div class="form-field">
+          <label><input type="checkbox" id="acepta_reserva"> Estoy de acuerdo que todos mis datos serán tratados con absoluta reserva y confidencialidad.</label>
+        </div>
+        <div class="form-field">
+          <label><input type="checkbox" id="art166"> Declaro conocer el Artículo 166 (Código Penal) (Acusación y denuncia falsa)...</label>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h3>Adjuntar archivos</h3>
+        <div class="form-field full">
+          <input type="file" id="adjuntos_final" name="adjuntos_final" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,video/*,audio/*">
+          <div class="hint">Máximo 5 archivos</div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="firma">Firma</label>
+            <input type="text" id="firma" name="firma">
+          </div>
+          <div class="form-field">
+            <label for="fecha_firma">Fecha</label>
+            <input type="date" id="fecha_firma" name="fecha_firma">
+          </div>
+          <div class="form-field full">
+            <label for="recibido_por">Recibido por</label>
+            <input type="text" id="recibido_por" name="recibido_por">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn primary">Enviar Denuncia</button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container footer-grid">
+    <div>
+      <div class="footer-logo">[LOGO_FOOTER]</div>
+      <div class="contact">
+        <h4>Contáctenos</h4>
+        <p>Teléfono: 2 190107</p>
+        <p>Correo: cnt.pdhdlp@policia.gob.bo</p>
+        <p>Dirección: Av. 20 de Octubre esq. c/ Lisimaco Gutiérrez #2541</p>
+      </div>
+    </div>
+    <div>
+      <h4>Búscanos en nuestras redes sociales</h4>
+      <div class="social-list">
+        <span class="social-item">WhatsApp</span>
+        <span class="social-item">Facebook</span>
+        <span class="social-item">Instagram</span>
+        <span class="social-item">Twitter</span>
+        <span class="social-item">YouTube</span>
+      </div>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <div>Copyright (c) 2024 Policía Bolivia. Todos los derechos reservados.</div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+<script src="../assets/script.js"></script>
+</body>
+</html>

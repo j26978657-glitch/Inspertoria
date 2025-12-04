@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Departamento Nacional de Inspectoría</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<header class="header" id="header">
+  <div class="header-top">
+    <div class="logo left">[LOGO_INSTITUCION_IZQUIERDA]</div>
+    <nav class="nav" id="nav">
+      <button class="hamburger" id="hamburger" aria-label="Abrir menú" aria-expanded="false">☰</button>
+      <ul class="menu" id="menu">
+        <li><a href="index.html">Inicio</a></li>
+        <li class="has-submenu">
+          <a href="pages/institucion.html">Institución</a>
+          <ul class="submenu">
+            <li><a href="pages/mision-vision.html">Misión – Visión</a></li>
+            <li><a href="pages/organigrama.html">Organigrama</a></li>
+            <li><a href="pages/historia.html">Historia</a></li>
+            <li><a href="pages/inspectorias.html">Inspectorías Departamentales</a></li>
+          </ul>
+        </li>
+        <li><a href="pages/marco-legal.html">Marco Legal</a></li>
+        <li><a href="pages/galeria.html">Galería</a></li>
+        <li><a href="pages/denuncias.html">Formulario de Denuncias</a></li>
+      </ul>
+    </nav>
+    <div class="logo right">[LOGO_INSTITUCION_DERECHA]</div>
+  </div>
+  <div class="header-bar"></div>
+  <div id="inicio"></div>
+</header>
+
+<section class="banner" id="banner">
+  <div class="slider" id="slider">
+    <div class="slide active">
+      <div class="slide-image">[IMAGEN_CARRUSEL_1]</div>
+      <div class="slide-overlay">
+        <h1>Departamento Nacional de Inspectoría</h1>
+        <p>Compromiso institucional, transparencia y servicio a la ciudadanía</p>
+        <a href="pages/institucion.html" class="btn primary">Conocer más</a>
+      </div>
+    </div>
+    <div class="slide">
+      <div class="slide-image">[IMAGEN_CARRUSEL_2]</div>
+      <div class="slide-overlay">
+        <h1>Gestión ética y control</h1>
+        <p>Fortaleciendo la confianza a través de buenas prácticas</p>
+        <a href="pages/marco-legal.html" class="btn primary">Ver marco legal</a>
+      </div>
+    </div>
+    <div class="slide">
+      <div class="slide-image">[IMAGEN_CARRUSEL_3]</div>
+      <div class="slide-overlay">
+        <h1>Atención a denuncias</h1>
+        <p>Canales accesibles y acompañamiento profesional</p>
+        <a href="pages/denuncias.html" class="btn primary">Presentar denuncia</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="presentacion reveal" id="presentacion">
+  <div class="container">
+    <div class="card wide">
+      <div class="card-media">[IMAGEN_PRESENTACION]</div>
+      <div class="card-content">
+        <h2>Presentación</h2>
+        <p>El Departamento Nacional de Inspectoría promueve la integridad institucional y vela por el cumplimiento del marco normativo, asegurando la transparencia de los procesos y la atención efectiva a la ciudadanía.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="news reveal" id="policia-informa">
+  <div class="container">
+    <div class="news-header">
+      <h2>Tu Policía Informa</h2>
+      <div>
+        <a class="btn ghost" href="pages/noticias.html">Ver todas</a>
+      </div>
+    </div>
+    <div class="news-grid" id="homeNewsList" data-fallback="true">
+      <div class="news-card">
+        <div class="news-media">[IMAGEN_NOTICIA_01]</div>
+        <div class="news-body">
+          <div class="news-title">Operativo de control en zonas estratégicas</div>
+          <div class="news-desc">Acciones coordinadas para fortalecer la seguridad ciudadana.</div>
+          <a class="btn primary" href="pages/noticia-1.html">Leer</a>
+        </div>
+      </div>
+      <div class="news-card">
+        <div class="news-media">[IMAGEN_NOTICIA_02]</div>
+        <div class="news-body">
+          <div class="news-title">Capacitación en integridad y transparencia</div>
+          <div class="news-desc">Programa institucional continuo para servidores policiales.</div>
+          <a class="btn primary" href="pages/noticia-2.html">Leer</a>
+        </div>
+      </div>
+      <div class="news-card">
+        <div class="news-media">[IMAGEN_NOTICIA_03]</div>
+        <div class="news-body">
+          <div class="news-title">Atención de denuncias y acompañamiento</div>
+          <div class="news-desc">Canales activos y respuesta oportuna para la ciudadanía.</div>
+          <a class="btn primary" href="pages/noticia-3.html">Leer</a>
+        </div>
+      </div>
+      <div class="news-card">
+        <div class="news-media">[IMAGEN_NOTICIA_04]</div>
+        <div class="news-body">
+          <div class="news-title">Resultados de inspecciones internas</div>
+          <div class="news-desc">Mejoras implementadas y reporte de buenas prácticas.</div>
+          <a class="btn primary" href="pages/noticia-4.html">Leer</a>
+        </div>
+      </div>
+    </div>
+    <div class="section-card" id="homeNewsDetail" style="display:none;margin-top:16px">
+      <div id="homeNewsDetailMedia" class="news-media">[IMAGEN_NOTICIA]</div>
+      <div class="news-body">
+        <div id="homeNewsDetailTitle" class="news-title"></div>
+        <div id="homeNewsDetailSummary" class="news-desc"></div>
+        <div id="homeNewsDetailContent" style="margin-top:12px"></div>
+        <div class="form-actions">
+          <button class="btn ghost" id="homeNewsDetailClose">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="integridad reveal" id="integridad">
+  <div class="container">
+    <div class="integridad-grid" id="integridadGrid">
+      <div class="integridad-card">
+        <div class="int-media">[IMAGEN_INTEGRIDAD_1]</div>
+        <h3>Cultura de Integridad y Transparencia</h3>
+        <div class="int-content">El policía es un ejemplo de confiabilidad con cero tolerancia a la corrupción y plena transparencia</div>
+      </div>
+      <div class="integridad-card">
+        <div class="int-media">[IMAGEN_INTEGRIDAD_2]</div>
+        <h3>Lo que puede</h3>
+        <div class="int-content">
+          <ul>
+            <li>Proteger derechos humanos de detenidos (integridad física, mental y patrimonial)</li>
+            <li>Obedecer órdenes de su superior siempre y cuando sean apegadas a derecho y respetuosos de los derechos de las personas.</li>
+            <li>Prevenir delitos, faltas y contravenciones</li>
+          </ul>
+        </div>
+      </div>
+      <div class="integridad-card">
+        <div class="int-media">[IMAGEN_INTEGRIDAD_3]</div>
+        <h3>Lo que no puede</h3>
+        <div class="int-content">
+          <ul>
+            <li>Pedir coima</li>
+            <li>Impedir ejercicio de derechos ciudadanos.</li>
+            <li>Ser prepotente</li>
+            <li>Detener sin cumplir derechos constitucionales</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container footer-grid">
+    <div>
+      <div class="footer-logo">[LOGO_FOOTER]</div>
+      <div class="contact">
+        <h4>Contáctenos</h4>
+        <p>Teléfono: <span id="footerPhone">2 190107</span></p>
+        <p>Correo: <span id="footerEmail">cnt.pdhdlp@policia.gob.bo</span></p>
+        <p>Dirección: <span id="footerAddress">Av. 20 de Octubre esq. c/ Lisimaco Gutiérrez #2541</span></p>
+      </div>
+    </div>
+    <div>
+      <h4>Búscanos en nuestras redes sociales</h4>
+      <div class="social-list">
+        <span class="social-item">WhatsApp</span>
+        <span class="social-item">Facebook</span>
+        <span class="social-item">Instagram</span>
+        <span class="social-item">Twitter</span>
+        <span class="social-item">YouTube</span>
+      </div>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <div>Copyright (c) 2024 Policía Bolivia. Todos los derechos reservados.</div>
+  </div>
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+<script src="assets/script.js"></script>
+</body>
+</html>

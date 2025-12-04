@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Administración — Departamento Nacional de Inspectoría</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<header class="header" id="header">
+  <div class="header-top">
+    <div class="logo left">[LOGO_INSTITUCION_IZQUIERDA]</div>
+    <nav class="nav" id="nav">
+      <button class="hamburger" id="hamburger" aria-label="Abrir menú" aria-expanded="false">☰</button>
+      <ul class="menu" id="menu">
+        <li><a href="../index.html">Inicio</a></li>
+        <li><a href="admin.html">Administración</a></li>
+      </ul>
+    </nav>
+    <div class="logo right">[LOGO_INSTITUCION_DERECHA]</div>
+  </div>
+  <div class="header-bar"></div>
+</header>
+
+<section class="presentacion">
+  <div class="container">
+    <h2>Panel de Administración</h2>
+    <div class="section-card">
+      <h3>Carrusel (Inicio)</h3>
+      <form id="adminCarouselForm" class="form-grid">
+        <div class="form-field">
+          <label for="adminCarouselImage">Imagen</label>
+          <input type="file" id="adminCarouselImage" accept="image/*">
+        </div>
+        <div class="form-field">
+          <label for="adminCarouselPosition">Posición</label>
+          <input type="number" id="adminCarouselPosition" value="0" min="0">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn primary">Agregar al carrusel</button>
+        </div>
+      </form>
+      <div class="table-wrap">
+        <table class="table" id="adminCarouselTable">
+          <thead><tr><th>Posición</th><th>Imagen</th><th>Acciones</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="section-card">
+      <h3>Noticias (Inicio)</h3>
+      <form id="adminNewsForm" class="form-grid">
+        <div class="form-field">
+          <label for="adminNewsTitle">Título</label>
+          <input type="text" id="adminNewsTitle" required>
+        </div>
+        <div class="form-field">
+          <label for="adminNewsSummary">Resumen</label>
+          <input type="text" id="adminNewsSummary" required>
+        </div>
+        <div class="form-field full">
+          <label for="adminNewsContent">Contenido</label>
+          <textarea id="adminNewsContent" rows="6" required></textarea>
+        </div>
+        <div class="form-field">
+          <label for="adminNewsImage">Imagen</label>
+          <input type="file" id="adminNewsImage" accept="image/*">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn primary">Agregar noticia</button>
+        </div>
+      </form>
+      <div class="table-wrap">
+        <table class="table" id="adminNewsTable">
+          <thead><tr><th>Título</th><th>Resumen</th><th>Acciones</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h3>Cultura de Integridad (Inicio)</h3>
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="adminIntSize">Tamaño de texto</label>
+          <select id="adminIntSize">
+            <option value="16px">Mediano</option>
+            <option value="18px">Grande</option>
+            <option value="20px">Muy grande</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="adminIntColor">Color</label>
+          <input type="color" id="adminIntColor" value="#111827">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn primary" id="adminIntSave">Guardar configuración</button>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h3>Fichas de Cultura de Integridad</h3>
+      <form id="adminIntItemForm" class="form-grid">
+        <div class="form-field">
+          <label for="adminIntItemTitle">Título</label>
+          <input type="text" id="adminIntItemTitle" required>
+        </div>
+        <div class="form-field full">
+          <label for="adminIntItemContent">Contenido</label>
+          <textarea id="adminIntItemContent" rows="6" required></textarea>
+        </div>
+        <div class="form-field">
+          <label><input type="checkbox" id="adminIntItemTextOnly"> Solo texto (sin imagen)</label>
+        </div>
+        <div class="form-field">
+          <label for="adminIntItemImage">Imagen</label>
+          <input type="file" id="adminIntItemImage" accept="image/*">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn primary" id="adminIntItemAdd">Agregar ficha</button>
+          <div class="hint" id="adminIntItemsHint">Máximo 3 fichas</div>
+        </div>
+      </form>
+      <div class="table-wrap">
+        <table class="table" id="adminIntItemsTable">
+          <thead><tr><th>Título</th><th>Tipo</th><th>Acciones</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h3>Galería</h3>
+      <form id="adminGalleryForm" class="form-grid">
+        <div class="form-field">
+          <label for="adminGalleryImage">Imagen</label>
+          <input type="file" id="adminGalleryImage" accept="image/*">
+        </div>
+        <div class="form-field">
+          <label for="adminGalleryCaption">Descripción (opcional)</label>
+          <input type="text" id="adminGalleryCaption">
+        </div>
+        <div class="form-field">
+          <label for="adminGalleryPosition">Posición</label>
+          <input type="number" id="adminGalleryPosition" value="0" min="0">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn primary">Agregar imagen</button>
+        </div>
+      </form>
+      <div class="table-wrap">
+        <table class="table" id="adminGalleryTable">
+          <thead><tr><th>Posición</th><th>Imagen</th><th>Descripción</th><th>Acciones</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h3>Datos de Contacto (Footer)</h3>
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="adminPhone">Teléfono</label>
+          <input type="text" id="adminPhone" placeholder="2 190107">
+        </div>
+        <div class="form-field">
+          <label for="adminEmail">Correo</label>
+          <input type="email" id="adminEmail" placeholder="cnt.pdhdlp@policia.gob.bo">
+        </div>
+        <div class="form-field full">
+          <label for="adminAddress">Dirección</label>
+          <input type="text" id="adminAddress" placeholder="Av. 20 de Octubre esq. c/ Lisimaco Gutiérrez #2541">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn primary" id="adminFooterSave">Guardar contacto</button>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h3>Exportar / Importar Configuración</h3>
+      <div class="form-actions" style="display:flex;gap:12px">
+        <button class="btn ghost" id="adminExport">Exportar JSON</button>
+        <label class="btn ghost" style="cursor:pointer">
+          Importar JSON
+          <input type="file" id="adminImport" accept="application/json" style="display:none">
+        </label>
+      </div>
+      <div id="adminExportResult" class="hint"></div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container footer-grid">
+    <div>
+      <div class="footer-logo">[LOGO_FOOTER]</div>
+      <div class="contact">
+        <h4>Contáctenos</h4>
+        <p>Teléfono: <span id="footerPhone">2 190107</span></p>
+        <p>Correo: <span id="footerEmail">cnt.pdhdlp@policia.gob.bo</span></p>
+        <p>Dirección: <span id="footerAddress">Av. 20 de Octubre esq. c/ Lisimaco Gutiérrez #2541</span></p>
+      </div>
+    </div>
+    <div>
+      <h4>Búscanos en nuestras redes sociales</h4>
+      <div class="social-list" id="footerSocial">
+        <span class="social-item">WhatsApp</span>
+        <span class="social-item">Facebook</span>
+        <span class="social-item">Instagram</span>
+        <span class="social-item">Twitter</span>
+        <span class="social-item">YouTube</span>
+      </div>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <div>Copyright (c) 2024 Policía Bolivia. Todos los derechos reservados.</div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+<script src="../assets/script.js"></script>
+</body>
+</html>
