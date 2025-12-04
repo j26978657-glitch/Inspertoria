@@ -21,6 +21,18 @@ document.addEventListener('DOMContentLoaded',function(){
   var anonimaNo=document.getElementById('anonimaNo');
 
   feather&&feather.replace();
+  window.showMessage=function(title,text){
+    var m=document.createElement('div');m.className='modal';
+    var d=document.createElement('div');d.className='modal-dialog';
+    var c=document.createElement('div');c.className='modal-content';
+    var h=document.createElement('h3');h.textContent=title;
+    var p=document.createElement('p');p.textContent=text;
+    var close=document.createElement('button');close.className='modal-close';close.textContent='✕';
+    close.addEventListener('click',function(){m.remove()});
+    d.appendChild(close);c.appendChild(h);c.appendChild(p);d.appendChild(c);m.appendChild(d);
+    m.addEventListener('click',function(e){if(e.target===m){m.remove()}});
+    document.body.appendChild(m);
+  };
 
   function onScroll(){
     if(window.scrollY>4){header.classList.add('header-scrolled')}else{header.classList.remove('header-scrolled')}
@@ -32,6 +44,28 @@ document.addEventListener('DOMContentLoaded',function(){
     var open=menu.classList.toggle('open');
     hamburger.setAttribute('aria-expanded',open?'true':'false');
   });
+
+  var adminTabs=document.getElementById('adminTabs');
+  if(adminTabs){
+    var tabs=Array.prototype.slice.call(adminTabs.querySelectorAll('.admin-tab'));
+    var sections=Array.prototype.slice.call(document.querySelectorAll('.admin-section'));
+    function activate(section){
+      tabs.forEach(function(t){t.classList.remove('active')});
+      sections.forEach(function(s){s.classList.remove('active')});
+      var tab=tabs.find(function(t){return t.getAttribute('data-section')===section});
+      var sec=sections.find(function(s){return s.getAttribute('data-section')===section});
+      if(tab){tab.classList.add('active')}
+      if(sec){sec.classList.add('active')}
+    }
+    tabs.forEach(function(t){
+      t.addEventListener('click',function(){
+        var s=t.getAttribute('data-section');
+        activate(s);
+      });
+    });
+    var initial=tabs.find(function(t){return t.classList.contains('active')});
+    if(initial){activate(initial.getAttribute('data-section'))}
+  }
 
   if(slider){
     slides=Array.prototype.slice.call(slider.querySelectorAll('.slide'));
@@ -59,6 +93,48 @@ document.addEventListener('DOMContentLoaded',function(){
       });
     }).catch(function(){})
   }
+
+  var adminDenTable=document.getElementById('adminDenTable');
+  var adminDenFrom=document.getElementById('adminDenFrom');
+  var adminDenTo=document.getElementById('adminDenTo');
+  var adminDenSearch=document.getElementById('adminDenSearch');
+  var adminDenDownloadAll=document.getElementById('adminDenDownloadAll');
+  function renderAdminDenuncias(){
+    if(!adminDenTable)return;
+    var tbody=adminDenTable.querySelector('tbody');
+    var url=API_BASE+'/api/denuncias';
+    var params=[];
+    if(adminDenFrom&&adminDenFrom.value)params.push('from='+adminDenFrom.value);
+    if(adminDenTo&&adminDenTo.value)params.push('to='+adminDenTo.value);
+    if(params.length)url+='?'+params.join('&');
+    fetch(url).then(function(r){return r.json()}).then(function(items){
+      tbody.innerHTML=items.map(function(d){
+        return '<tr><td>'+(d.fecha||'')+'</td><td>'+(d.hora||'')+'</td><td><button class="btn ghost" data-id="'+d.id+'">Descargar imagen</button></td></tr>';
+      }).join('');
+      Array.prototype.slice.call(tbody.querySelectorAll('button[data-id]')).forEach(function(btn){
+        btn.addEventListener('click',function(){
+          var id=parseInt(btn.getAttribute('data-id'),10);
+          fetch(API_BASE+'/api/denuncias/'+id).then(function(r){return r.json()}).then(function(it){
+            if(!(it&&it.image))return;var a=document.createElement('a');a.href=it.image;a.download='denuncia-'+it.id+'.png';document.body.appendChild(a);a.click();document.body.removeChild(a);
+          });
+        });
+      });
+    }).catch(function(){if(tbody)tbody.innerHTML='';});
+  }
+  if(adminDenTable){renderAdminDenuncias()}
+  if(adminDenSearch){adminDenSearch.addEventListener('click',function(){renderAdminDenuncias()})}
+  if(adminDenDownloadAll){adminDenDownloadAll.addEventListener('click',function(){
+    var url=API_BASE+'/api/denuncias';
+    var params=[];
+    if(adminDenFrom&&adminDenFrom.value)params.push('from='+adminDenFrom.value);
+    if(adminDenTo&&adminDenTo.value)params.push('to='+adminDenTo.value);
+    if(params.length)url+='?'+params.join('&');
+    fetch(url).then(function(r){return r.json()}).then(function(items){
+      items.forEach(function(it,idx){
+        if(!it.image)return;setTimeout(function(){var a=document.createElement('a');a.href=it.image;a.download='denuncia-'+(it.id||idx)+'.png';document.body.appendChild(a);a.click();document.body.removeChild(a);},idx*200);
+      });
+    });
+  })}
 
   var observer=new IntersectionObserver(function(entries){
     entries.forEach(function(entry){
@@ -132,16 +208,25 @@ document.addEventListener('DOMContentLoaded',function(){
         if(!field.value||field.value.trim()===''){valid=false;field.classList.add('invalid')}
       });
       if(correo&&correo.value&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.value)){valid=false;correo.classList.add('invalid')}
-      if(!tipoSeleccionado){valid=false;alert('Seleccione un tipo de denuncia')}
-      if(adjFinal&&adjFinal.files&&adjFinal.files.length>5){valid=false;alert('Máximo 5 archivos adjuntos')}
+      if(!tipoSeleccionado){valid=false;showMessage('Validación','Seleccione un tipo de denuncia')}
+      if(adjFinal&&adjFinal.files&&adjFinal.files.length>5){valid=false;showMessage('Validación','Máximo 5 archivos adjuntos')}
       if(!valid){e.preventDefault();return}
       e.preventDefault();
-      alert('Denuncia enviada. Gracias por su reporte.');
-      form.reset();
-      if(tablaDenunciados){tablaDenunciados.querySelector('tbody').innerHTML=''}
-      // Reiniciar fecha/hora por si se quiere otra carga inmediata
-      if(fechaEl){fechaEl.value=''}
-      if(horaEl){horaEl.value=''}
+      html2canvas(form).then(function(canvas){
+        var img=canvas.toDataURL('image/png');
+        var fd=new FormData(form);var data={};fd.forEach(function(v,k){
+          if(v&&v.name){data[k]=v.name}else{data[k]=v}
+        });
+        return fetch(API_BASE+'/api/denuncias',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fecha:data.fecha,hora:data.hora,image:img,data:data})});
+      }).then(function(){
+        showMessage('Éxito','Denuncia enviada. Gracias por su reporte.');
+        form.reset();
+        if(tablaDenunciados){tablaDenunciados.querySelector('tbody').innerHTML=''}
+        if(fechaEl){fechaEl.value=''}
+        if(horaEl){horaEl.value=''}
+      }).catch(function(){
+        showMessage('Error','No se pudo enviar la denuncia');
+      });
     });
   }
 
@@ -157,7 +242,7 @@ document.addEventListener('DOMContentLoaded',function(){
       var n=document.getElementById('dd_nombres').value.trim();
       var ap=document.getElementById('dd_apaterno').value.trim();
       var am=document.getElementById('dd_amaterno').value.trim();
-      if(!n||!ap){alert('Complete al menos nombres y apellido paterno');return}
+      if(!n||!ap){showMessage('Validación','Complete al menos nombres y apellido paterno');return}
       var tr=document.createElement('tr');
       tr.innerHTML='<td>'+n+'</td><td>'+ap+'</td><td>'+am+'</td><td><button type="button" class="btn ghost">Eliminar</button></td>';
       var tbody=tablaDenunciados.querySelector('tbody');
@@ -231,10 +316,10 @@ if(modal){
       var summary=document.getElementById('newsSummary').value.trim();
       var content=document.getElementById('newsContent').value.trim();
       var file=document.getElementById('newsImage').files[0];
-      if(!title||!summary||!content){alert('Complete título, resumen y contenido');return}
+      if(!title||!summary||!content){showMessage('Validación','Complete título, resumen y contenido');return}
       function post(imageData){
         fetch(API_BASE+'/api/news',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:title,summary:summary,content:content,image:imageData||''})})
-          .then(function(r){return r.json()}).then(function(){newsForm.reset();loadNews();alert('Noticia agregada')}).catch(function(){alert('Error al guardar')});
+          .then(function(r){return r.json()}).then(function(){newsForm.reset();loadNews();showMessage('Éxito','La noticia fue enviada con éxito')}).catch(function(){showMessage('Error','No se pudo enviar la noticia')});
       }
       if(file){var reader=new FileReader();reader.onload=function(){post(reader.result)};reader.readAsDataURL(file)}else{post('')}
     });
@@ -279,11 +364,11 @@ if(modal){
       var s=document.getElementById('adminNewsSummary').value.trim();
       var c=document.getElementById('adminNewsContent').value.trim();
       var f=document.getElementById('adminNewsImage').files[0];
-      if(!t||!s||!c){alert('Complete título, resumen y contenido');return}
+      if(!t||!s||!c){showMessage('Validación','Complete título, resumen y contenido');return}
       function save(image){
         fetch(API_BASE+'/api/news',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t,summary:s,content:c,image:image||''})})
-          .then(function(){renderAdminNews();adminNewsForm.reset();alert('Noticia agregada')})
-          .catch(function(){alert('Error al guardar')});
+          .then(function(){renderAdminNews();adminNewsForm.reset();showMessage('Éxito','La noticia fue enviada con éxito')})
+          .catch(function(){showMessage('Error','No se pudo enviar la noticia')});
       }
       if(f){var reader=new FileReader();reader.onload=function(){save(reader.result)};reader.readAsDataURL(f)}else{save('')}
     });

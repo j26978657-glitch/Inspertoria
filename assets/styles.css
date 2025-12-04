@@ -140,6 +140,12 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy-2);
 .table th,.table td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left}
 .captcha-box{font-family:Montserrat,Inter,sans-serif;font-size:28px;font-weight:700;letter-spacing:6px;background:#fff;border:1px dashed #cbd5e1;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px;color:#111827}
 .notice{background:#f9fafb;border:2px solid #cbd5e1;border-radius:14px;padding:16px;margin:12px 0}
+
+.admin-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.admin-tab{border:1px solid #d1d5db;background:#fff;color:var(--navy-2);border-radius:10px;padding:8px 12px;cursor:pointer}
+.admin-tab.active{background:#eef2ff;border-color:#c7d2fe}
+.admin-section{display:none}
+.admin-section.active{display:block}
 .lined{background-image:repeating-linear-gradient(#fff,#fff 28px,#e5e7eb 29px);background-attachment:local}
 .lined.big{min-height:300px}
 .section-card textarea{width:100%}

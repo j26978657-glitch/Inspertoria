@@ -57,6 +57,14 @@ async function ensureSchema() {
     );
     INSERT INTO footer_config (id) VALUES (TRUE)
       ON CONFLICT (id) DO NOTHING;
+    CREATE TABLE IF NOT EXISTS denuncias (
+      id SERIAL PRIMARY KEY,
+      fecha DATE NOT NULL,
+      hora TEXT,
+      image TEXT,
+      data JSONB,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
   `);
 }
 
@@ -161,6 +169,32 @@ app.post('/api/footer', async (req, res) => {
   const { phone, email, address } = req.body;
   await pool.query('UPDATE footer_config SET phone = $1, email = $2, address = $3 WHERE id = TRUE', [phone || '', email || '', address || '']);
   const { rows } = await pool.query('SELECT phone, email, address FROM footer_config WHERE id = TRUE');
+  res.json(rows[0]);
+});
+
+// Denuncias
+app.post('/api/denuncias', async (req, res) => {
+  const { fecha, hora, image, data } = req.body;
+  if (!fecha || !image) return res.status(400).json({ error: 'campos requeridos' });
+  const { rows } = await pool.query('INSERT INTO denuncias (fecha, hora, image, data) VALUES ($1, $2, $3, $4) RETURNING *', [fecha, hora || null, image, data || null]);
+  res.json(rows[0]);
+});
+app.get('/api/denuncias', async (req, res) => {
+  const { from, to } = req.query;
+  let q = 'SELECT * FROM denuncias';
+  const p = [];
+  if (from || to) {
+    q += ' WHERE 1=1';
+    if (from) { p.push(from); q += ` AND fecha >= ${p.length}`; }
+    if (to) { p.push(to); q += ` AND fecha <= ${p.length}`; }
+  }
+  q += ' ORDER BY fecha DESC, id DESC';
+  const { rows } = p.length ? await pool.query(q, p) : await pool.query(q);
+  res.json(rows);
+});
+app.get('/api/denuncias/:id', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM denuncias WHERE id = $1', [req.params.id]);
+  if (!rows.length) return res.status(404).json({ error: 'denuncia no encontrada' });
   res.json(rows[0]);
 });
 

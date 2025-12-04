@@ -26,7 +26,16 @@
 <section class="presentacion">
   <div class="container">
     <h2>Panel de Administración</h2>
-    <div class="section-card">
+    <div class="admin-tabs" id="adminTabs">
+      <button class="admin-tab active" data-section="carousel">Carrusel</button>
+      <button class="admin-tab" data-section="news">Noticias</button>
+      <button class="admin-tab" data-section="integridad">Fichas de Integridad</button>
+      <button class="admin-tab" data-section="gallery">Galería</button>
+      <button class="admin-tab" data-section="footer">Contacto</button>
+      <button class="admin-tab" data-section="denuncias">Descargar Denuncias</button>
+      <button class="admin-tab" data-section="export">Exportar/Importar</button>
+    </div>
+    <div class="section-card admin-section active" data-section="carousel">
       <h3>Carrusel (Inicio)</h3>
       <form id="adminCarouselForm" class="form-grid">
         <div class="form-field">
@@ -48,7 +57,7 @@
         </table>
       </div>
     </div>
-    <div class="section-card">
+    <div class="section-card admin-section" data-section="news">
       <h3>Noticias (Inicio)</h3>
       <form id="adminNewsForm" class="form-grid">
         <div class="form-field">
@@ -78,29 +87,7 @@
         </table>
       </div>
     </div>
-
-    <div class="section-card">
-      <h3>Cultura de Integridad (Inicio)</h3>
-      <div class="form-grid">
-        <div class="form-field">
-          <label for="adminIntSize">Tamaño de texto</label>
-          <select id="adminIntSize">
-            <option value="16px">Mediano</option>
-            <option value="18px">Grande</option>
-            <option value="20px">Muy grande</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label for="adminIntColor">Color</label>
-          <input type="color" id="adminIntColor" value="#111827">
-        </div>
-      </div>
-      <div class="form-actions">
-        <button class="btn primary" id="adminIntSave">Guardar configuración</button>
-      </div>
-    </div>
-
-    <div class="section-card">
+    <div class="section-card admin-section" data-section="integridad">
       <h3>Fichas de Cultura de Integridad</h3>
       <form id="adminIntItemForm" class="form-grid">
         <div class="form-field">
@@ -130,9 +117,8 @@
         </table>
       </div>
     </div>
-
-    <div class="section-card">
-      <h3>Galería</h3>
+    <div class="section-card admin-section" data-section="gallery">
+      <h3>Galería (Inicio)</h3>
       <form id="adminGalleryForm" class="form-grid">
         <div class="form-field">
           <label for="adminGalleryImage">Imagen</label>
@@ -157,8 +143,8 @@
         </table>
       </div>
     </div>
-
-    <div class="section-card">
+    
+    <div class="section-card admin-section" data-section="footer">
       <h3>Datos de Contacto (Footer)</h3>
       <div class="form-grid">
         <div class="form-field">
@@ -178,8 +164,32 @@
         <button class="btn primary" id="adminFooterSave">Guardar contacto</button>
       </div>
     </div>
-
-    <div class="section-card">
+    
+    <div class="section-card admin-section" data-section="denuncias">
+      <h3>Descargar Denuncias</h3>
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="adminDenFrom">Desde</label>
+          <input type="date" id="adminDenFrom">
+        </div>
+        <div class="form-field">
+          <label for="adminDenTo">Hasta</label>
+          <input type="date" id="adminDenTo">
+        </div>
+      </div>
+      <div class="form-actions" style="display:flex;gap:12px">
+        <button class="btn primary" id="adminDenSearch">Buscar</button>
+        <button class="btn ghost" id="adminDenDownloadAll">Descargar todas</button>
+      </div>
+      <div class="table-wrap">
+        <table class="table" id="adminDenTable">
+          <thead><tr><th>Fecha</th><th>Hora</th><th>Acciones</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class="section-card admin-section" data-section="export">
       <h3>Exportar / Importar Configuración</h3>
       <div class="form-actions" style="display:flex;gap:12px">
         <button class="btn ghost" id="adminExport">Exportar JSON</button>
