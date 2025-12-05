@@ -33,6 +33,15 @@ document.addEventListener('DOMContentLoaded',function(){
     m.addEventListener('click',function(e){if(e.target===m){m.remove()}});
     document.body.appendChild(m);
   };
+  window.showLoading=function(text){
+    var m=document.createElement('div');m.className='modal';
+    var d=document.createElement('div');d.className='modal-dialog';
+    var c=document.createElement('div');c.className='modal-content';
+    var h=document.createElement('h3');h.textContent=text||'Cargando...';
+    c.appendChild(h);d.appendChild(c);m.appendChild(d);
+    document.body.appendChild(m);
+    return function(){try{m.remove()}catch(e){}};
+  };
 
   function onScroll(){
     if(window.scrollY>4){header.classList.add('header-scrolled')}else{header.classList.remove('header-scrolled')}
@@ -107,6 +116,7 @@ document.addEventListener('DOMContentLoaded',function(){
     if(adminDenFrom&&adminDenFrom.value)params.push('from='+adminDenFrom.value);
     if(adminDenTo&&adminDenTo.value)params.push('to='+adminDenTo.value);
     if(params.length)url+='?'+params.join('&');
+    var stop=showLoading('Cargando denuncias...');
     fetch(url).then(function(r){return r.json()}).then(function(items){
       tbody.innerHTML=items.map(function(d){
         return '<tr><td>'+(d.fecha||'')+'</td><td>'+(d.hora||'')+'</td><td><button class="btn ghost" data-id="'+d.id+'">Descargar denuncia</button></td></tr>';
@@ -130,6 +140,7 @@ document.addEventListener('DOMContentLoaded',function(){
           });
         });
       });
+      stop();
     }).catch(function(){if(tbody)tbody.innerHTML='';});
   }
   if(adminDenTable){renderAdminDenuncias()}
@@ -229,6 +240,7 @@ document.addEventListener('DOMContentLoaded',function(){
       if(adjFinal&&adjFinal.files&&adjFinal.files.length>5){valid=false;showMessage('Validación','Máximo 5 archivos adjuntos')}
       if(!valid){e.preventDefault();return}
       e.preventDefault();
+      var stopLoading=showLoading('Enviando denuncia...');
       var files=(adjFinal&&adjFinal.files)?Array.prototype.slice.call(adjFinal.files):[];
       html2canvas(form).then(function(canvas){
         var maxW=1280;var scale=Math.min(1,maxW/canvas.width);
@@ -248,12 +260,14 @@ document.addEventListener('DOMContentLoaded',function(){
           return fetch(API_BASE+'/api/denuncias',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fecha:data.fecha,hora:data.hora,image:img,data:data,attachments:att})});
         });
       }).then(function(){
+        stopLoading();
         showMessage('Éxito','Denuncia enviada. Gracias por su reporte.');
         form.reset();
         if(tablaDenunciados){tablaDenunciados.querySelector('tbody').innerHTML=''}
         if(fechaEl){fechaEl.value=''}
         if(horaEl){horaEl.value=''}
       }).catch(function(){
+        stopLoading();
         showMessage('Error','No se pudo enviar la denuncia');
       });
     });
