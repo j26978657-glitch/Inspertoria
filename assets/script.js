@@ -220,17 +220,24 @@ document.addEventListener('DOMContentLoaded',function(){
           fetch(API_BASE+'/api/denuncias/'+id).then(function(r){return r.json()}).then(function(it){
             if(action==='view'){
               var box=document.createElement('div');
-              var img=document.createElement('img');
-              img.src=it.image||'';img.style.maxWidth='800px';img.style.width='100%';
-              box.appendChild(img);
+              box.className='pdf-view';
+              var p1=document.createElement('div');p1.className='pdf-page';
+              var p2=document.createElement('div');p2.className='pdf-page';
+              var t1=window.FORM_PDF_TEMPLATE_1_URL||'/img/FORMULARIO%20DE%20DENUNCIA%20DNTLCC_page-0001.jpg';
+              var t2=window.FORM_PDF_TEMPLATE_2_URL||'/img/FORMULARIO%20DE%20DENUNCIA%20DNTLCC_page-0002.jpg';
+              p1.style.backgroundImage='url("'+t1+'")';
+              p2.style.backgroundImage='url("'+t2+'")';
+              box.appendChild(p1);
+              box.appendChild(p2);
               if(it.attachments&&it.attachments.length){
-                var list=document.createElement('div');
-                list.style.marginTop='12px';
-                list.innerHTML='<h4>Adjuntos</h4>';
+                var p3=document.createElement('div');p3.className='pdf-page';
+                var ul=document.createElement('div');ul.className='pdf-attach-list';
+                var h=document.createElement('h4');h.textContent='Adjuntos';ul.appendChild(h);
                 it.attachments.forEach(function(att){
-                  var a=document.createElement('a');a.href=att.data||att.url||'#';a.textContent=att.name||att.nombre_original||'archivo';a.style.display='block';a.style.margin='4px 0';a.setAttribute('download',att.name||'adjunto');list.appendChild(a);
+                  var a=document.createElement('a');a.href=att.data||att.url||'#';a.textContent=att.name||att.nombre_original||'archivo';a.style.display='block';a.style.margin='6px 0';a.setAttribute('download',att.name||'adjunto');ul.appendChild(a);
                 });
-                box.appendChild(list);
+                p3.appendChild(ul);
+                box.appendChild(p3);
               }
               showDialog(box);
             } else if(action==='pdf'){
