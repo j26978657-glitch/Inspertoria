@@ -165,20 +165,30 @@ document.addEventListener('DOMContentLoaded',function(){
                   img.onload=function(){
                     var pageW=doc.internal.pageSize.getWidth();
                     var pageH=doc.internal.pageSize.getHeight();
-                    var m=20;
+                    var m=12; // margen reducido para aprovechar mejor el ancho
                     var contentH=pageH-2*m;
                     var imgW=pageW-2*m;
                     var scale=imgW/img.width;
+                    var scaledH=img.height*scale;
+                    if(scaledH<=contentH){
+                      // Cabe en una sola página a ancho completo
+                      doc.addImage(src,'PNG',m,m,imgW,scaledH);
+                      return resolve();
+                    }
                     var pagePixels=Math.floor(contentH/scale);
                     var totalPages=Math.ceil(img.height/pagePixels);
                     var canvas=document.createElement('canvas');
                     var ctx=canvas.getContext('2d');
+                    ctx.imageSmoothingEnabled=true;
+                    ctx.imageSmoothingQuality='high';
                     var y=0;
                     for(var p=0;p<totalPages;p++){
-                      var sliceH=Math.min(pagePixels,img.height-y);
+                      var sliceH=Math.floor(Math.min(pagePixels,img.height-y));
                       canvas.width=img.width;
                       canvas.height=sliceH;
-                      ctx.clearRect(0,0,canvas.width,canvas.height);
+                      // Fondo blanco para evitar artefactos/alpha
+                      ctx.fillStyle='#ffffff';
+                      ctx.fillRect(0,0,canvas.width,canvas.height);
                       ctx.drawImage(img,0,y,img.width,sliceH,0,0,img.width,sliceH);
                       var data=canvas.toDataURL('image/png');
                       if(p>0)doc.addPage();
