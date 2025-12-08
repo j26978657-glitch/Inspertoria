@@ -1,3 +1,4 @@
+window.API_BASE=window.API_BASE||'';
 document.addEventListener('DOMContentLoaded',function(){
   var API_BASE='';
   var header=document.getElementById('header');
@@ -221,7 +222,7 @@ document.addEventListener('DOMContentLoaded',function(){
             if(action==='view'){
               function buildPreview(d){
                 var A4={w:595.28,h:841.89};
-                var container=document.createElement('div');container.className='pdf-view';
+                var container=document.createElement('div');container.className='pdf-view horizontal';
                 var t1=window.FORM_PDF_TEMPLATE_1_URL||'/img/FORMULARIO%20DE%20DENUNCIA%20DNTLCC_page-0001.jpg';
                 var t2=window.FORM_PDF_TEMPLATE_2_URL||'/img/FORMULARIO%20DE%20DENUNCIA%20DNTLCC_page-0002.jpg';
                 function page(bg){var p=document.createElement('div');p.className='pdf-page';p.style.backgroundImage='url("'+bg+'")';return p}
@@ -279,6 +280,8 @@ document.addEventListener('DOMContentLoaded',function(){
                 container.appendChild(p1);container.appendChild(p2);
                 var atts=Array.isArray(it.attachments)?it.attachments:[];
                 if(atts.length){var p3=document.createElement('div');p3.className='pdf-page';var y=document.createElement('div');y.className='pdf-attach-list';var h=document.createElement('h4');h.textContent='Adjuntos';y.appendChild(h);atts.forEach(function(att,i){var e=document.createElement('div');e.textContent=(i+1)+'. '+(att.name||att.nombre_original||'archivo');y.appendChild(e)});p3.appendChild(y);container.appendChild(p3)}
+                container.addEventListener('wheel',function(e){ if(e.deltaY){ container.scrollLeft+=e.deltaY; e.preventDefault(); } },{passive:false});
+                (function(){ var isDown=false; var startX=0; var startLeft=0; container.style.cursor='grab'; container.addEventListener('mousedown',function(e){ isDown=true; startX=e.pageX; startLeft=container.scrollLeft; container.style.cursor='grabbing'; e.preventDefault(); }); container.addEventListener('mouseup',function(){ isDown=false; container.style.cursor='grab'; }); container.addEventListener('mouseleave',function(){ isDown=false; container.style.cursor='grab'; }); container.addEventListener('mousemove',function(e){ if(!isDown) return; var dx=e.pageX-startX; container.scrollLeft=startLeft-dx; }); })();
                 return container;
               }
               var modalBox=buildPreview(it);
