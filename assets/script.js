@@ -33,6 +33,16 @@ document.addEventListener('DOMContentLoaded',function(){
     m.addEventListener('click',function(e){if(e.target===m){m.remove()}});
     document.body.appendChild(m);
   };
+  window.showDialog=function(node){
+    var m=document.createElement('div');m.className='modal';
+    var d=document.createElement('div');d.className='modal-dialog';
+    var c=document.createElement('div');c.className='modal-content';
+    var close=document.createElement('button');close.className='modal-close';close.textContent='✕';
+    close.addEventListener('click',function(){m.remove()});
+    d.appendChild(close);c.appendChild(node);d.appendChild(c);m.appendChild(d);
+    m.addEventListener('click',function(e){if(e.target===m){m.remove()}});
+    document.body.appendChild(m);
+  };
   window.showLoading=function(text){
     var m=document.createElement('div');m.className='modal';
     var d=document.createElement('div');d.className='modal-dialog';
@@ -119,23 +129,53 @@ document.addEventListener('DOMContentLoaded',function(){
     var stop=showLoading('Cargando denuncias...');
     fetch(url).then(function(r){return r.json()}).then(function(items){
       tbody.innerHTML=items.map(function(d){
-        return '<tr><td>'+(d.fecha||'')+'</td><td>'+(d.hora||'')+'</td><td><button class="btn ghost" data-id="'+d.id+'">Descargar denuncia</button></td></tr>';
+        return '<tr><td>'+(d.fecha||'')+'</td><td>'+(d.hora||'')+'</td>'+
+          '<td style="display:flex;gap:8px">'
+          +'<button class="btn ghost" data-id="'+d.id+'" data-action="view">Ver</button>'
+          +'<button class="btn primary" data-id="'+d.id+'" data-action="pdf">PDF</button>'
+          +'</td></tr>';
       }).join('');
       Array.prototype.slice.call(tbody.querySelectorAll('button[data-id]')).forEach(function(btn){
         btn.addEventListener('click',function(){
           var id=parseInt(btn.getAttribute('data-id'),10);
+          var action=btn.getAttribute('data-action');
           fetch(API_BASE+'/api/denuncias/'+id).then(function(r){return r.json()}).then(function(it){
-            if(it&&it.image){var a=document.createElement('a');a.href=it.image;a.download='denuncia-'+it.id+'.png';document.body.appendChild(a);a.click();document.body.removeChild(a);} 
-            if(it&&it.attachments&&it.attachments.length){
-              it.attachments.forEach(function(att,idx){
-                if(!att||!att.data)return;
-                setTimeout(function(){
-                  var b=document.createElement('a');
-                  b.href=att.data;
-                  b.download=(att.name||('adjunto-'+(idx+1)));
-                  document.body.appendChild(b);b.click();document.body.removeChild(b);
-                },200*(idx+1));
-              });
+            if(action==='view'){
+              var box=document.createElement('div');
+              var img=document.createElement('img');
+              img.src=it.image||'';img.style.maxWidth='800px';img.style.width='100%';
+              box.appendChild(img);
+              if(it.attachments&&it.attachments.length){
+                var list=document.createElement('div');
+                list.style.marginTop='12px';
+                list.innerHTML='<h4>Adjuntos</h4>';
+                it.attachments.forEach(function(att){
+                  var a=document.createElement('a');a.href=att.data||att.url||'#';a.textContent=att.name||att.nombre_original||'archivo';a.style.display='block';a.style.margin='4px 0';a.setAttribute('download',att.name||'adjunto');list.appendChild(a);
+                });
+                box.appendChild(list);
+              }
+              showDialog(box);
+            } else if(action==='pdf'){
+              if(!window.jspdf||!window.jspdf.jsPDF){showMessage('Error','PDF no disponible');return}
+              var doc=new window.jspdf.jsPDF({format:'a4',unit:'pt'});
+              var pageW=doc.internal.pageSize.getWidth();
+              var pageH=doc.internal.pageSize.getHeight();
+              var tmp=new Image();
+              tmp.onload=function(){
+                var ratio=tmp.width/tmp.height;var imgW=pageW-40;var imgH=imgW/ratio;var y=20; if(imgH>pageH-40){imgH=pageH-40;imgW=imgH*ratio}
+                doc.addImage(it.image,'PNG',20,y,imgW,imgH);
+                if(it.attachments&&it.attachments.length){
+                  doc.addPage();
+                  doc.setFontSize(14);doc.text('Adjuntos',40,40);
+                  doc.setFontSize(12);
+                  var y2=60; it.attachments.forEach(function(att,idx){
+                    var line=(idx+1)+'. '+(att.name||att.nombre_original||'archivo');
+                    doc.text(line,40,y2); y2+=18;
+                  });
+                }
+                doc.save('denuncia-'+it.id+'.pdf');
+              };
+              tmp.src=it.image||'';
             }
           });
         });
