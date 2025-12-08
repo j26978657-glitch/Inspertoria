@@ -159,12 +159,38 @@ document.addEventListener('DOMContentLoaded',function(){
             } else if(action==='pdf'){
               if(!window.jspdf||!window.jspdf.jsPDF){showMessage('Error','PDF no disponible');return}
               var doc=new window.jspdf.jsPDF({format:'a4',unit:'pt'});
-              var pageW=doc.internal.pageSize.getWidth();
-              var pageH=doc.internal.pageSize.getHeight();
-              var tmp=new Image();
-              tmp.onload=function(){
-                var ratio=tmp.width/tmp.height;var imgW=pageW-40;var imgH=imgW/ratio;var y=20; if(imgH>pageH-40){imgH=pageH-40;imgW=imgH*ratio}
-                doc.addImage(it.image,'PNG',20,y,imgW,imgH);
+              function addMultiPageImage(doc,src){
+                return new Promise(function(resolve){
+                  var img=new Image();
+                  img.onload=function(){
+                    var pageW=doc.internal.pageSize.getWidth();
+                    var pageH=doc.internal.pageSize.getHeight();
+                    var m=20;
+                    var contentH=pageH-2*m;
+                    var imgW=pageW-2*m;
+                    var scale=imgW/img.width;
+                    var pagePixels=Math.floor(contentH/scale);
+                    var totalPages=Math.ceil(img.height/pagePixels);
+                    var canvas=document.createElement('canvas');
+                    var ctx=canvas.getContext('2d');
+                    var y=0;
+                    for(var p=0;p<totalPages;p++){
+                      var sliceH=Math.min(pagePixels,img.height-y);
+                      canvas.width=img.width;
+                      canvas.height=sliceH;
+                      ctx.clearRect(0,0,canvas.width,canvas.height);
+                      ctx.drawImage(img,0,y,img.width,sliceH,0,0,img.width,sliceH);
+                      var data=canvas.toDataURL('image/png');
+                      if(p>0)doc.addPage();
+                      doc.addImage(data,'PNG',m,m,imgW,sliceH*scale);
+                      y+=sliceH;
+                    }
+                    resolve();
+                  };
+                  img.src=src||'';
+                });
+              }
+              addMultiPageImage(doc,it.image||'').then(function(){
                 if(it.attachments&&it.attachments.length){
                   doc.addPage();
                   doc.setFontSize(14);doc.text('Adjuntos',40,40);
@@ -175,8 +201,7 @@ document.addEventListener('DOMContentLoaded',function(){
                   });
                 }
                 doc.save('denuncia-'+it.id+'.pdf');
-              };
-              tmp.src=it.image||'';
+              });
             }
           });
         });
