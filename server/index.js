@@ -71,8 +71,26 @@ async function ensureSchema() {
   `);
 }
 
-// DB guard for API when no database configured
-app.use('/api', (req,res,next)=>{ if(!pool) return res.status(503).json({ error: 'base de datos no configurada' }); next(); });
+app.use('/api', (req,res,next)=>{
+  if(pool) return next();
+  if(req.method === 'GET'){
+    const p = req.path || '';
+    if(p.startsWith('/integridad/config')) return res.json({ size: '16px', color: '#111827' });
+    if(p.startsWith('/footer')) return res.json({});
+    return res.json([]);
+  }
+  return res.status(503).json({ error: 'base de datos no configurada' });
+});
+
+app.get('/api/health', async (req, res) => {
+  if(!pool) return res.json({ db: false, reason: 'no_database_url' });
+  try{
+    await pool.query('SELECT 1');
+    res.json({ db: true });
+  }catch(e){
+    res.status(503).json({ db: false, error: e.message });
+  }
+});
 
 // Carousel
 app.get('/api/carousel', async (req, res) => {
