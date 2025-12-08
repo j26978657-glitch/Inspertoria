@@ -53,6 +53,71 @@ document.addEventListener('DOMContentLoaded',function(){
     return function(){try{m.remove()}catch(e){}};
   };
 
+  window.setFormPdfTemplates=function(url1,url2){
+    window.FORM_PDF_TEMPLATE_1_URL=url1;
+    window.FORM_PDF_TEMPLATE_2_URL=url2;
+  };
+
+  function generateFilledPDF(data){
+    var PDFLib=window.PDFLib; if(!PDFLib||!PDFLib.PDFDocument) return Promise.reject(new Error('pdf-lib no disponible'));
+    var A4={w:595.28,h:841.89};
+    var t1=window.FORM_PDF_TEMPLATE_1_URL||data.template1||'';
+    var t2=window.FORM_PDF_TEMPLATE_2_URL||data.template2||'';
+    function fetchAsUint8(url){ return fetch(url).then(function(r){return r.arrayBuffer()}).then(function(b){return new Uint8Array(b)}) }
+    var docPromise=PDFLib.PDFDocument.create();
+    return Promise.all([docPromise, t1?fetchAsUint8(t1):Promise.resolve(null), t2?fetchAsUint8(t2):Promise.resolve(null)]).then(function(res){
+      var pdf=res[0]; var page1Img=res[1]; var page2Img=res[2];
+      var page1=pdf.addPage([A4.w,A4.h]);
+      var page2=pdf.addPage([A4.w,A4.h]);
+      function embedJpg(bytes){ return bytes?pdf.embedJpg(bytes):Promise.resolve(null) }
+      return Promise.all([embedJpg(page1Img), embedJpg(page2Img)]).then(function(imgs){
+        var bg1=imgs[0], bg2=imgs[1];
+        if(bg1){ page1.drawImage(bg1,{x:0,y:0,width:A4.w,height:A4.h}) }
+        if(bg2){ page2.drawImage(bg2,{x:0,y:0,width:A4.w,height:A4.h}) }
+        var fontPromise=pdf.embedFont(PDFLib.StandardFonts.Helvetica);
+        return fontPromise.then(function(font){
+          var size10=10, size11=11, size12=12;
+          var color=PDFLib.rgb(0,0,0);
+          function text(p,txt,x,y,size,maxW){ p.drawText(String(txt||''),{x:x,y:y,size:size||size11,font:font,color:color,maxWidth:maxW||undefined,lineHeight:size+3}) }
+          function mark(p,x,y){ p.drawText('X',{x:x,y:y,size:size12,font:font,color:color}) }
+          text(page1,data.apellidos_nombres, 82, A4.h-255, size12, 430);
+          text(page1,data.ci, 86, A4.h-296, size12, 180);
+          text(page1,data.departamento, 370, A4.h-296, size12, 180);
+          text(page1,data.direccion, 82, A4.h-338, size12, 430);
+          text(page1,data.correo, 82, A4.h-380, size12, 260);
+          text(page1,data.telefono, 370, A4.h-380, size12, 140);
+          text(page1,data.denunciado_grado_nombre, 82, A4.h-443, size12, 430);
+          text(page1,data.lugar_hecho, 86, A4.h-484, size12, 180);
+          text(page1,data.unidad_policial, 370, A4.h-484, size12, 180);
+          text(page1,data.cargo_funcion, 86, A4.h-526, size12, 180);
+          text(page1,data.departamento_denunciado, 370, A4.h-526, size12, 180);
+          if(data.tipo_corrupcion){ mark(page1, 226, A4.h-566) }
+          if(data.tipo_negativa){ mark(page1, 520, A4.h-566) }
+          text(page1, (data.relacion_hecho||'')+(data.relacion_hecho_2?('\n'+data.relacion_hecho_2):''), 82, A4.h-738, size11, 430);
+
+          text(page2,data.fecha, 86, A4.h-120, size12, 160);
+          text(page2,data.hora, 370, A4.h-120, size12, 160);
+          text(page2,data.documentacion, 82, A4.h-180, size11, 430);
+          text(page2,data.num_fojas, 160, A4.h-246, size12, 120);
+          if(String(data.reserva_identidad||'').toLowerCase()==='si'){ mark(page2, 226, A4.h-246) }
+          if(String(data.reserva_identidad||'').toLowerCase()==='no'){ mark(page2, 270, A4.h-246) }
+          text(page2,data.firma, 82, A4.h-330, size12, 200);
+          text(page2,data.fecha_firma, 370, A4.h-330, size12, 160);
+          text(page2,data.recibido_por, 82, A4.h-372, size12, 430);
+
+          var attachments=Array.isArray(data.attachments)?data.attachments:[];
+          if(attachments.length){
+            var page3=pdf.addPage([A4.w,A4.h]);
+            text(page3,'Adjuntos:',40,A4.h-60,size12);
+            var y=A4.h-90; attachments.forEach(function(att,i){ text(page3,(i+1)+'. '+(att.name||''),40,y,size12,500); y-=18; });
+          }
+          return pdf.save();
+        });
+      });
+    });
+  }
+
+
   function onScroll(){
     if(window.scrollY>4){header.classList.add('header-scrolled')}else{header.classList.remove('header-scrolled')}
   }
@@ -157,61 +222,40 @@ document.addEventListener('DOMContentLoaded',function(){
               }
               showDialog(box);
             } else if(action==='pdf'){
-              if(!window.jspdf||!window.jspdf.jsPDF){showMessage('Error','PDF no disponible');return}
-              var doc=new window.jspdf.jsPDF({format:'a4',unit:'pt'});
-              function addMultiPageImage(doc,src){
-                return new Promise(function(resolve){
-                  var img=new Image();
-                  img.onload=function(){
-                    var pageW=doc.internal.pageSize.getWidth();
-                    var pageH=doc.internal.pageSize.getHeight();
-                    var m=12; // margen reducido para aprovechar mejor el ancho
-                    var contentH=pageH-2*m;
-                    var imgW=pageW-2*m;
-                    var scale=imgW/img.width;
-                    var scaledH=img.height*scale;
-                    if(scaledH<=contentH){
-                      // Cabe en una sola página a ancho completo
-                      doc.addImage(src,'PNG',m,m,imgW,scaledH);
-                      return resolve();
-                    }
-                    var pagePixels=Math.floor(contentH/scale);
-                    var totalPages=Math.ceil(img.height/pagePixels);
-                    var canvas=document.createElement('canvas');
-                    var ctx=canvas.getContext('2d');
-                    ctx.imageSmoothingEnabled=true;
-                    ctx.imageSmoothingQuality='high';
-                    var y=0;
-                    for(var p=0;p<totalPages;p++){
-                      var sliceH=Math.floor(Math.min(pagePixels,img.height-y));
-                      canvas.width=img.width;
-                      canvas.height=sliceH;
-                      // Fondo blanco para evitar artefactos/alpha
-                      ctx.fillStyle='#ffffff';
-                      ctx.fillRect(0,0,canvas.width,canvas.height);
-                      ctx.drawImage(img,0,y,img.width,sliceH,0,0,img.width,sliceH);
-                      var data=canvas.toDataURL('image/png');
-                      if(p>0)doc.addPage();
-                      doc.addImage(data,'PNG',m,m,imgW,sliceH*scale);
-                      y+=sliceH;
-                    }
-                    resolve();
-                  };
-                  img.src=src||'';
-                });
+              if(window.PDFLib&&window.PDFLib.PDFDocument){
+                var mapping={
+                  apellidos_nombres:(it.data&&it.data.dn_nombrecompleto)||'',
+                  ci:(it.data&&it.data.dn_ci)||'',
+                  departamento:(it.data&&it.data.dn_departamento)||'',
+                  direccion:(it.data&&it.data.dn_direccion)||'',
+                  correo:(it.data&&it.data.dn_correo)||'',
+                  telefono:(it.data&&it.data.dn_telefono)||'',
+                  denunciado_grado_nombre:(it.data&&it.data.dd_grado_nombres)||'',
+                  lugar_hecho:(it.data&&it.data.dd_lugar)||'',
+                  unidad_policial:(it.data&&it.data.dd_unidad)||'',
+                  cargo_funcion:(it.data&&it.data.dd_cargo)||'',
+                  departamento_denunciado:(it.data&&it.data.dd_departamento)||'',
+                  tipo_corrupcion:(it.data&&it.data.tipo_denuncia)==='corrupcion',
+                  tipo_negativa:(it.data&&it.data.tipo_denuncia)==='negativa',
+                  relacion_hecho:(it.data&&it.data.descripcion)||'',
+                  fecha:(it.data&&it.data.fecha)||'',
+                  hora:(it.data&&it.data.hora)||'',
+                  documentacion:(it.data&&it.data.adjuntos_descripcion)||'',
+                  num_fojas:(it.data&&it.data.num_fojas)||'',
+                  reserva_identidad:(it.data&&it.data.reserva_identidad)||'',
+                  firma:(it.data&&it.data.firma)||'',
+                  fecha_firma:(it.data&&it.data.fecha_firma)||'',
+                  recibido_por:(it.data&&it.data.recibido_por)||'',
+                  attachments:(it.attachments||[])
+                };
+                generateFilledPDF(mapping).then(function(bytes){
+                  var blob=new Blob([bytes],{type:'application/pdf'});
+                  var url=URL.createObjectURL(blob);
+                  var a=document.createElement('a');a.href=url;a.download='denuncia-'+it.id+'.pdf';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+                }).catch(function(){showMessage('Error','PDF no disponible')});
+              } else {
+                showMessage('Error','PDF no disponible');
               }
-              addMultiPageImage(doc,it.image||'').then(function(){
-                if(it.attachments&&it.attachments.length){
-                  doc.addPage();
-                  doc.setFontSize(14);doc.text('Adjuntos',40,40);
-                  doc.setFontSize(12);
-                  var y2=60; it.attachments.forEach(function(att,idx){
-                    var line=(idx+1)+'. '+(att.name||att.nombre_original||'archivo');
-                    doc.text(line,40,y2); y2+=18;
-                  });
-                }
-                doc.save('denuncia-'+it.id+'.pdf');
-              });
             }
           });
         });
