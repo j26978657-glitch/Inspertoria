@@ -639,7 +639,7 @@ if(modal){
     });
   }
 
-  setFormPdfTemplates('/img/FORMULARIO_DE_DENUNCIA_DNTLCC_page-0001.jpg','/img/FORMULARIO_DE_DENUNCIA_DNTLCC_page-0002.jpg');
+  setFormPdfTemplates('/img/FORMULARIO%20DE%20DENUNCIA%20DNTLCC_page-0001.jpg','/img/FORMULARIO%20DE%20DENUNCIA%20DNTLCC_page-0002.jpg');
   setFormPdfLogos('/img/logo_left.png','/img/logo_right.png');
   if(adminImport){
     adminImport.addEventListener('change',function(){
