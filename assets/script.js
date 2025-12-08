@@ -54,6 +54,23 @@ document.addEventListener('DOMContentLoaded',function(){
     return function(){try{m.remove()}catch(e){}};
   };
 
+  window.showProgress=function(text){
+    var m=document.createElement('div');m.className='modal';
+    var d=document.createElement('div');d.className='modal-dialog';
+    var c=document.createElement('div');c.className='modal-content';
+    var h=document.createElement('h3');h.textContent=text||'Generando PDF...';
+    var pct=document.createElement('div');pct.style.marginTop='8px';pct.style.fontSize='14px';pct.textContent='0%';
+    var barWrap=document.createElement('div');barWrap.style.marginTop='8px';barWrap.style.width='100%';barWrap.style.height='8px';barWrap.style.background='#e5e7eb';barWrap.style.borderRadius='4px';
+    var bar=document.createElement('div');bar.style.height='100%';bar.style.width='0%';bar.style.background='#2563eb';bar.style.borderRadius='4px';
+    barWrap.appendChild(bar);
+    c.appendChild(h);c.appendChild(pct);c.appendChild(barWrap);d.appendChild(c);m.appendChild(d);
+    document.body.appendChild(m);
+    return {
+      update:function(p,label){var v=Math.max(0,Math.min(100,Math.round(p||0)));bar.style.width=v+'%';pct.textContent=v+'%';if(label){h.textContent=label}},
+      close:function(){try{m.remove()}catch(e){}}
+    };
+  };
+
   window.setFormPdfTemplates=function(url1,url2){
     window.FORM_PDF_TEMPLATE_1_URL=url1;
     window.FORM_PDF_TEMPLATE_2_URL=url2;
@@ -254,6 +271,10 @@ document.addEventListener('DOMContentLoaded',function(){
                   fecha_firma:d.fecha_firma||dd.fecha_firma||'',
                   recibido_por:d.recibido_por||dd.recibido_por||''
                 };
+                function normDate(v){if(!v)return '';var s=String(v);if(/T/.test(s))return s.slice(0,10);return s}
+                function normTime(v){if(!v)return '';var s=String(v);if(s.length>=5)return s.slice(0,5);return s}
+                m.fecha_hecho=normDate(m.fecha_hecho);
+                m.hora_aproximada=normTime(m.hora_aproximada);
                 addText(p1,m.apellidos_nombres,82,A4.h-255,12,430);
                 addText(p1,m.ci,86,A4.h-296,12,180);
                 addText(p1,m.departamento,370,A4.h-296,12,180);
@@ -296,14 +317,19 @@ document.addEventListener('DOMContentLoaded',function(){
               var pages=Array.prototype.slice.call(cont.querySelectorAll('.pdf-page'));
               var jsPDF=(window.jspdf&&window.jspdf.jsPDF)?window.jspdf.jsPDF:null;
               if(!jsPDF||!window.html2canvas){showMessage('Error','Vista previa o PDF no disponible'); try{document.body.removeChild(prev)}catch(e){}; return;}
+              var progress=showProgress('Generando PDF...');
+              var total=Math.max(1,pages.length*2+1);
+              var done=0;progress.update(0,'Capturando páginas...');
               var doc=new jsPDF('p','mm','a4');
-              var tasks=pages.map(function(p){ return window.html2canvas(p,{scale:2,useCORS:true}); });
+              var tasks=pages.map(function(p){ var t=window.html2canvas(p,{scale:2,useCORS:true}); t.then(function(){done++;progress.update((done/total)*100,'Procesando...')}); return t; });
               Promise.all(tasks).then(function(bitmaps){
-                bitmaps.forEach(function(canvas,idx){ var img=canvas.toDataURL('image/png'); var w=210; var h=297; if(idx>0) doc.addPage(); doc.addImage(img,'PNG',0,0,w,h); });
+                bitmaps.forEach(function(canvas,idx){ var img=canvas.toDataURL('image/png'); var w=210; var h=297; if(idx>0) doc.addPage(); doc.addImage(img,'PNG',0,0,w,h); done++; progress.update((done/total)*100,'Ensamblando PDF...'); });
+                done++; progress.update((done/total)*100,'Descargando...');
                 var out=doc.output('blob');
                 var url=URL.createObjectURL(out);
                 var a=document.createElement('a');a.href=url;a.download='denuncia-'+it.id+'.pdf';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
-              }).catch(function(){showMessage('Error','No se pudo generar PDF')}).finally(function(){ try{document.body.removeChild(prev)}catch(e){} });
+                progress.close();
+              }).catch(function(){progress.close();showMessage('Error','No se pudo generar PDF')}).finally(function(){ try{document.body.removeChild(prev)}catch(e){} });
             }
           });
         });

@@ -167,6 +167,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy-2);
 .pdf-view.horizontal{flex-direction:row;align-items:flex-start;gap:16px;overflow-x:auto;overflow-y:hidden;padding-bottom:8px}
 .pdf-page{position:relative;width:595.28px;height:841.89px;background:#fff;background-size:100% 100%;background-repeat:no-repeat;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 8px 16px rgba(0,0,0,.1)}
 .pdf-view.horizontal .pdf-page{flex:0 0 auto}
+.pdf-page div{font-family:Arial,Helvetica,sans-serif;color:#111827;word-break:break-word}
 .pdf-page .page-content{position:absolute;inset:0;padding:40px}
 .pdf-attach-list{padding:40px;font-size:14px}
 
