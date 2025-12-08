@@ -57,23 +57,32 @@ document.addEventListener('DOMContentLoaded',function(){
     window.FORM_PDF_TEMPLATE_1_URL=url1;
     window.FORM_PDF_TEMPLATE_2_URL=url2;
   };
+  window.setFormPdfLogos=function(leftUrl,rightUrl){
+    window.FORM_PDF_LOGO_LEFT_URL=leftUrl;
+    window.FORM_PDF_LOGO_RIGHT_URL=rightUrl;
+  };
 
   function generateFilledPDF(data){
     var PDFLib=window.PDFLib; if(!PDFLib||!PDFLib.PDFDocument) return Promise.reject(new Error('pdf-lib no disponible'));
     var A4={w:595.28,h:841.89};
     var t1=window.FORM_PDF_TEMPLATE_1_URL||data.template1||'';
     var t2=window.FORM_PDF_TEMPLATE_2_URL||data.template2||'';
+    var logoL=window.FORM_PDF_LOGO_LEFT_URL||data.logo_left||'';
+    var logoR=window.FORM_PDF_LOGO_RIGHT_URL||data.logo_right||'';
     function fetchAsUint8(url){ return fetch(url).then(function(r){return r.arrayBuffer()}).then(function(b){return new Uint8Array(b)}) }
     var docPromise=PDFLib.PDFDocument.create();
-    return Promise.all([docPromise, t1?fetchAsUint8(t1):Promise.resolve(null), t2?fetchAsUint8(t2):Promise.resolve(null)]).then(function(res){
-      var pdf=res[0]; var page1Img=res[1]; var page2Img=res[2];
+    return Promise.all([docPromise, t1?fetchAsUint8(t1):Promise.resolve(null), t2?fetchAsUint8(t2):Promise.resolve(null), logoL?fetchAsUint8(logoL):Promise.resolve(null), logoR?fetchAsUint8(logoR):Promise.resolve(null)]).then(function(res){
+      var pdf=res[0]; var page1Img=res[1]; var page2Img=res[2]; var logoLBytes=res[3]; var logoRBytes=res[4];
       var page1=pdf.addPage([A4.w,A4.h]);
       var page2=pdf.addPage([A4.w,A4.h]);
       function embedJpg(bytes){ return bytes?pdf.embedJpg(bytes):Promise.resolve(null) }
-      return Promise.all([embedJpg(page1Img), embedJpg(page2Img)]).then(function(imgs){
-        var bg1=imgs[0], bg2=imgs[1];
+      function embedPng(bytes){ return bytes?pdf.embedPng(bytes):Promise.resolve(null) }
+      return Promise.all([embedJpg(page1Img), embedJpg(page2Img), embedPng(logoLBytes), embedPng(logoRBytes)]).then(function(imgs){
+        var bg1=imgs[0], bg2=imgs[1], lgL=imgs[2], lgR=imgs[3];
         if(bg1){ page1.drawImage(bg1,{x:0,y:0,width:A4.w,height:A4.h}) }
         if(bg2){ page2.drawImage(bg2,{x:0,y:0,width:A4.w,height:A4.h}) }
+        if(lgL){ page1.drawImage(lgL,{x:30,y:A4.h-90,width:70,height:70}) }
+        if(lgR){ page1.drawImage(lgR,{x:A4.w-100,y:A4.h-90,width:70,height:70}) }
         var fontPromise=pdf.embedFont(PDFLib.StandardFonts.Helvetica);
         return fontPromise.then(function(font){
           var size10=10, size11=11, size12=12;
@@ -629,6 +638,9 @@ if(modal){
       }).catch(function(){if(adminExportResult){adminExportResult.textContent='Error al exportar'}})
     });
   }
+
+  setFormPdfTemplates('/img/FORMULARIO_DE_DENUNCIA_DNTLCC_page-0001.jpg','/img/FORMULARIO_DE_DENUNCIA_DNTLCC_page-0002.jpg');
+  setFormPdfLogos('/img/logo_left.png','/img/logo_right.png');
   if(adminImport){
     adminImport.addEventListener('change',function(){
       var f=adminImport.files; if(!(f&&f.length))return;
