@@ -48,16 +48,16 @@
         <h3>Datos del Denunciante</h3>
         <div class="form-grid">
           <div class="form-field full">
-            <label for="dn_nombrecompleto">Apellidos y Nombres</label>
-            <input type="text" id="dn_nombrecompleto" name="dn_nombrecompleto">
+            <label for="apellidos_nombres">Apellidos y Nombres</label>
+            <input type="text" id="apellidos_nombres" name="apellidos_nombres">
           </div>
           <div class="form-field">
-            <label for="dn_ci">CI</label>
-            <input type="text" id="dn_ci" name="dn_ci">
+            <label for="ci">CI</label>
+            <input type="text" id="ci" name="ci">
           </div>
           <div class="form-field">
-            <label for="dn_departamento">Departamento</label>
-            <select id="dn_departamento" name="dn_departamento">
+            <label for="departamento">Departamento</label>
+            <select id="departamento" name="departamento">
               <option value="">Seleccione</option>
               <option>La Paz</option>
               <option>Cochabamba</option>
@@ -71,16 +71,16 @@
             </select>
           </div>
           <div class="form-field full">
-            <label for="dn_direccion">Dirección</label>
-            <input type="text" id="dn_direccion" name="dn_direccion">
+            <label for="direccion">Dirección</label>
+            <input type="text" id="direccion" name="direccion">
           </div>
           <div class="form-field">
-            <label for="dn_correo">Correo electrónico</label>
-            <input type="email" id="dn_correo" name="dn_correo" required>
+            <label for="correo_electronico">Correo electrónico</label>
+            <input type="email" id="correo_electronico" name="correo_electronico" required>
           </div>
           <div class="form-field">
-            <label for="dn_telefono">Teléfono</label>
-            <input type="tel" id="dn_telefono" name="dn_telefono">
+            <label for="telefono">Teléfono</label>
+            <input type="tel" id="telefono" name="telefono">
           </div>
         </div>
       </div>
@@ -89,24 +89,24 @@
         <h3>Datos del Denunciado</h3>
         <div class="form-grid">
           <div class="form-field full">
-            <label for="dd_grado_nombres">Grado, apellidos y nombres</label>
-            <input type="text" id="dd_grado_nombres" name="dd_grado_nombres">
+            <label for="grado_apellidos_nombres">Grado, apellidos y nombres</label>
+            <input type="text" id="grado_apellidos_nombres" name="grado_apellidos_nombres">
           </div>
           <div class="form-field">
-            <label for="dd_lugar">Lugar del hecho</label>
-            <input type="text" id="dd_lugar" name="dd_lugar">
+            <label for="lugar_hecho">Lugar del hecho</label>
+            <input type="text" id="lugar_hecho" name="lugar_hecho">
           </div>
           <div class="form-field">
-            <label for="dd_unidad">Unidad policial</label>
-            <input type="text" id="dd_unidad" name="dd_unidad">
+            <label for="unidad_policial">Unidad policial</label>
+            <input type="text" id="unidad_policial" name="unidad_policial">
           </div>
           <div class="form-field">
-            <label for="dd_cargo">Cargo y función que cumple (referencial)</label>
-            <input type="text" id="dd_cargo" name="dd_cargo">
+            <label for="cargo_funcion">Cargo y función que cumple (referencial)</label>
+            <input type="text" id="cargo_funcion" name="cargo_funcion">
           </div>
           <div class="form-field">
-            <label for="dd_departamento">Departamento</label>
-            <select id="dd_departamento" name="dd_departamento">
+            <label for="departamento_denunciado">Departamento</label>
+            <select id="departamento_denunciado" name="departamento_denunciado">
               <option value="">Seleccione</option>
               <option>La Paz</option>
               <option>Cochabamba</option>
@@ -125,24 +125,24 @@
       <div class="section-card">
         <h3>Tipo de denuncia</h3>
         <div class="radio-group">
-          <label><input type="radio" id="tipo_corrupcion" name="tipo_denuncia" value="corrupcion"> Posibles actos de corrupción</label>
-          <label><input type="radio" id="tipo_negativa" name="tipo_denuncia" value="negativa"> Negativa injustificada de acceso a la información</label>
+          <label><input type="checkbox" id="tipo_corrupcion" name="tipo_corrupcion"> Posibles actos de corrupción</label>
+          <label><input type="checkbox" id="tipo_negativa_informacion" name="tipo_negativa_informacion"> Negativa injustificada de acceso a la información</label>
         </div>
       </div>
 
       <div class="section-card">
         <h3>Breve relación del hecho</h3>
         <div class="form-field full">
-          <textarea id="descripcion" name="descripcion" rows="18" class="lined big" required></textarea>
+          <textarea id="relato" name="relato" rows="18" class="lined big" required></textarea>
         </div>
         <div class="form-grid">
           <div class="form-field">
-            <label for="fecha">Fecha</label>
-            <input type="date" id="fecha" name="fecha" required>
+            <label for="fecha_hecho">Fecha</label>
+            <input type="date" id="fecha_hecho" name="fecha_hecho" required>
           </div>
           <div class="form-field">
-            <label for="hora">Hora aproximada</label>
-            <input type="time" id="hora" name="hora" required>
+            <label for="hora_aproximada">Hora aproximada</label>
+            <input type="time" id="hora_aproximada" name="hora_aproximada" required>
           </div>
         </div>
       </div>
@@ -150,24 +150,24 @@
       <div class="section-card">
         <h3>Documentación que se adjunta</h3>
         <div class="form-field full">
-          <textarea id="doc_adjunta" name="doc_adjunta" rows="10" class="lined"></textarea>
+          <textarea id="documentos_adjuntos" name="documentos_adjuntos" rows="10" class="lined"></textarea>
         </div>
         <div class="form-field">
-          <label for="num_fojas">Número de fojas</label>
-          <input type="text" id="num_fojas" name="num_fojas">
+          <label for="numero_hojas">Número de fojas</label>
+          <input type="text" id="numero_hojas" name="numero_hojas">
         </div>
         <div class="form-field">
           <label>Reserva de identidad</label>
           <div class="radio-group">
-            <label><input type="radio" name="reserva" value="si" id="reservaSi"> Si</label>
-            <label><input type="radio" name="reserva" value="no" id="reservaNo" checked> No</label>
+            <label><input type="radio" name="reserva_identidad" value="SI" id="reservaSi"> Si</label>
+            <label><input type="radio" name="reserva_identidad" value="NO" id="reservaNo" checked> No</label>
           </div>
         </div>
         <div class="form-field">
-          <label><input type="checkbox" id="acepta_reserva"> Estoy de acuerdo que todos mis datos serán tratados con absoluta reserva y confidencialidad.</label>
+          <label><input type="checkbox" id="acepta_confidencialidad" name="acepta_confidencialidad" required> Estoy de acuerdo que todos mis datos serán tratados con absoluta reserva y confidencialidad.</label>
         </div>
         <div class="form-field">
-          <label><input type="checkbox" id="art166"> Declaro conocer el Artículo 166 (Código Penal) (Acusación y denuncia falsa)...</label>
+          <label><input type="checkbox" id="acepta_articulo_166" name="acepta_articulo_166" required> Declaro conocer el Artículo 166 (Código Penal) (Acusación y denuncia falsa)</label>
         </div>
       </div>
 
@@ -192,6 +192,15 @@
           <div class="form-field full">
             <label for="recibido_por">Recibido por</label>
             <input type="text" id="recibido_por" name="recibido_por">
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <div id="captchaBox" class="captcha-box" aria-label="Captcha">0000</div>
+          </div>
+          <div class="form-field">
+            <label for="captchaInput">Ingrese el código</label>
+            <input type="text" id="captchaInput" name="captchaInput" inputmode="numeric" pattern="\\d{4}" required>
           </div>
         </div>
         <div class="form-actions">

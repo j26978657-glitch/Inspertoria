@@ -93,21 +93,21 @@ document.addEventListener('DOMContentLoaded',function(){
           text(page1,data.ci, 86, A4.h-296, size12, 180);
           text(page1,data.departamento, 370, A4.h-296, size12, 180);
           text(page1,data.direccion, 82, A4.h-338, size12, 430);
-          text(page1,data.correo, 82, A4.h-380, size12, 260);
+          text(page1,data.correo_electronico||data.correo, 82, A4.h-380, size12, 260);
           text(page1,data.telefono, 370, A4.h-380, size12, 140);
-          text(page1,data.denunciado_grado_nombre, 82, A4.h-443, size12, 430);
+          text(page1,data.grado_apellidos_nombres||data.denunciado_grado_nombre, 82, A4.h-443, size12, 430);
           text(page1,data.lugar_hecho, 86, A4.h-484, size12, 180);
           text(page1,data.unidad_policial, 370, A4.h-484, size12, 180);
           text(page1,data.cargo_funcion, 86, A4.h-526, size12, 180);
           text(page1,data.departamento_denunciado, 370, A4.h-526, size12, 180);
           if(data.tipo_corrupcion){ mark(page1, 226, A4.h-566) }
-          if(data.tipo_negativa){ mark(page1, 520, A4.h-566) }
-          text(page1, (data.relacion_hecho||'')+(data.relacion_hecho_2?('\n'+data.relacion_hecho_2):''), 82, A4.h-738, size11, 430);
+          if(data.tipo_negativa_informacion||data.tipo_negativa){ mark(page1, 520, A4.h-566) }
+          text(page1, (data.relato||data.relacion_hecho||'')+(data.relato_2?('\n'+data.relato_2):(data.relacion_hecho_2?('\n'+data.relacion_hecho_2):'')), 82, A4.h-738, size11, 430);
 
-          text(page2,data.fecha, 86, A4.h-120, size12, 160);
-          text(page2,data.hora, 370, A4.h-120, size12, 160);
-          text(page2,data.documentacion, 82, A4.h-180, size11, 430);
-          text(page2,data.num_fojas, 160, A4.h-246, size12, 120);
+          text(page2,data.fecha_hecho||data.fecha, 86, A4.h-120, size12, 160);
+          text(page2,data.hora_aproximada||data.hora, 370, A4.h-120, size12, 160);
+          text(page2,data.documentos_adjuntos||data.documentacion, 82, A4.h-180, size11, 430);
+          text(page2,data.numero_hojas||data.num_fojas, 160, A4.h-246, size12, 120);
           if(String(data.reserva_identidad||'').toLowerCase()==='si'){ mark(page2, 226, A4.h-246) }
           if(String(data.reserva_identidad||'').toLowerCase()==='no'){ mark(page2, 270, A4.h-246) }
           text(page2,data.firma, 82, A4.h-330, size12, 200);
@@ -204,7 +204,10 @@ document.addEventListener('DOMContentLoaded',function(){
     fetch(url).then(function(r){return r.ok ? r.json().catch(function(){return []}) : []}).then(function(items){
       items=Array.isArray(items)?items:[];
       tbody.innerHTML=items.map(function(d){
-        return '<tr><td>'+(d.fecha||'')+'</td><td>'+(d.hora||'')+'</td>'+
+        var tipo=(d.tipo_corrupcion?'Corrupción':'')+((d.tipo_corrupcion&&d.tipo_negativa_informacion)?' / ':'')+(d.tipo_negativa_informacion?'Negativa':'');
+        var denunciante=d.apellidos_nombres||((d.data&&d.data.apellidos_nombres)||'');
+        var denunciado=d.grado_apellidos_nombres||((d.data&&d.data.grado_apellidos_nombres)||'');
+        return '<tr><td>'+(d.fecha_hecho||d.fecha||'')+'</td><td>'+(d.hora_aproximada||d.hora||'')+'</td><td>'+denunciante+'</td><td>'+denunciado+'</td><td>'+tipo+'</td>'+
           '<td style="display:flex;gap:8px">'
           +'<button class="btn ghost" data-id="'+d.id+'" data-action="view">Ver</button>'
           +'<button class="btn primary" data-id="'+d.id+'" data-action="pdf">PDF</button>'
@@ -232,30 +235,31 @@ document.addEventListener('DOMContentLoaded',function(){
               showDialog(box);
             } else if(action==='pdf'){
               if(window.PDFLib&&window.PDFLib.PDFDocument){
+                var d=it||{};var dd=d.data||{};
                 var mapping={
-                  apellidos_nombres:(it.data&&it.data.dn_nombrecompleto)||'',
-                  ci:(it.data&&it.data.dn_ci)||'',
-                  departamento:(it.data&&it.data.dn_departamento)||'',
-                  direccion:(it.data&&it.data.dn_direccion)||'',
-                  correo:(it.data&&it.data.dn_correo)||'',
-                  telefono:(it.data&&it.data.dn_telefono)||'',
-                  denunciado_grado_nombre:(it.data&&it.data.dd_grado_nombres)||'',
-                  lugar_hecho:(it.data&&it.data.dd_lugar)||'',
-                  unidad_policial:(it.data&&it.data.dd_unidad)||'',
-                  cargo_funcion:(it.data&&it.data.dd_cargo)||'',
-                  departamento_denunciado:(it.data&&it.data.dd_departamento)||'',
-                  tipo_corrupcion:(it.data&&it.data.tipo_denuncia)==='corrupcion',
-                  tipo_negativa:(it.data&&it.data.tipo_denuncia)==='negativa',
-                  relacion_hecho:(it.data&&it.data.descripcion)||'',
-                  fecha:(it.data&&it.data.fecha)||'',
-                  hora:(it.data&&it.data.hora)||'',
-                  documentacion:(it.data&&it.data.adjuntos_descripcion)||'',
-                  num_fojas:(it.data&&it.data.num_fojas)||'',
-                  reserva_identidad:(it.data&&it.data.reserva_identidad)||'',
-                  firma:(it.data&&it.data.firma)||'',
-                  fecha_firma:(it.data&&it.data.fecha_firma)||'',
-                  recibido_por:(it.data&&it.data.recibido_por)||'',
-                  attachments:(it.attachments||[])
+                  apellidos_nombres:(d.apellidos_nombres||dd.apellidos_nombres||''),
+                  ci:(d.ci||dd.ci||''),
+                  departamento:(d.departamento||dd.departamento||''),
+                  direccion:(d.direccion||dd.direccion||''),
+                  correo:(d.correo_electronico||dd.correo_electronico||''),
+                  telefono:(d.telefono||dd.telefono||''),
+                  grado_apellidos_nombres:(d.grado_apellidos_nombres||dd.grado_apellidos_nombres||''),
+                  lugar_hecho:(d.lugar_hecho||dd.lugar_hecho||''),
+                  unidad_policial:(d.unidad_policial||dd.unidad_policial||''),
+                  cargo_funcion:(d.cargo_funcion||dd.cargo_funcion||''),
+                  departamento_denunciado:(d.departamento_denunciado||dd.departamento_denunciado||''),
+                  tipo_corrupcion:!!(d.tipo_corrupcion||(dd.tipo_corrupcion)),
+                  tipo_negativa_informacion:!!(d.tipo_negativa_informacion||(dd.tipo_negativa_informacion)),
+                  relato:(d.relato||dd.relato||''),
+                  fecha_hecho:(d.fecha_hecho||dd.fecha_hecho||d.fecha||''),
+                  hora_aproximada:(d.hora_aproximada||dd.hora_aproximada||d.hora||''),
+                  documentos_adjuntos:(d.documentos_adjuntos||dd.documentos_adjuntos||''),
+                  numero_hojas:(d.numero_hojas||dd.numero_hojas||''),
+                  reserva_identidad:(d.reserva_identidad||dd.reserva_identidad||''),
+                  firma:(d.firma||dd.firma||''),
+                  fecha_firma:(d.fecha_firma||dd.fecha_firma||''),
+                  recibido_por:(d.recibido_por||dd.recibido_por||''),
+                  attachments:(d.attachments||[])
                 };
                 generateFilledPDF(mapping).then(function(bytes){
                   var blob=new Blob([bytes],{type:'application/pdf'});
@@ -339,8 +343,8 @@ document.addEventListener('DOMContentLoaded',function(){
 
   if(form){
     // Autocompletar fecha y hora
-    var fechaEl=document.getElementById('fecha');
-    var horaEl=document.getElementById('hora');
+    var fechaEl=document.getElementById('fecha_hecho');
+    var horaEl=document.getElementById('hora_aproximada');
     if(fechaEl){
       var d=new Date();
       var yyyy=d.getFullYear();
@@ -356,20 +360,28 @@ document.addEventListener('DOMContentLoaded',function(){
     }
 
     form.addEventListener('submit',function(e){
-      var correo=document.getElementById('dn_correo');
-      var descripcion=document.getElementById('descripcion');
-      var fecha=document.getElementById('fecha');
-      var hora=document.getElementById('hora');
-      var tipoSeleccionado=document.querySelector('input[name="tipo_denuncia"]:checked');
+      var correo=document.getElementById('correo_electronico');
+      var descripcion=document.getElementById('relato');
+      var fecha=document.getElementById('fecha_hecho');
+      var hora=document.getElementById('hora_aproximada');
+      var tipoCorr=document.getElementById('tipo_corrupcion');
+      var tipoNeg=document.getElementById('tipo_negativa_informacion');
       var adjFinal=document.getElementById('adjuntos_final');
+      var captchaBox=document.getElementById('captchaBox');
+      var captchaInput=document.getElementById('captchaInput');
       var valid=true;
       [correo,descripcion,fecha,hora].forEach(function(field){
         if(!field)return;field.classList.remove('invalid');
         if(!field.value||field.value.trim()===''){valid=false;field.classList.add('invalid')}
       });
       if(correo&&correo.value&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.value)){valid=false;correo.classList.add('invalid')}
-      if(!tipoSeleccionado){valid=false;showMessage('Validación','Seleccione un tipo de denuncia')}
+      
       if(adjFinal&&adjFinal.files&&adjFinal.files.length>5){valid=false;showMessage('Validación','Máximo 5 archivos adjuntos')}
+      if(captchaBox&&captchaInput){
+        var code=(captchaBox.textContent||'').replace(/\s+/g,'');
+        var input=(captchaInput.value||'').trim();
+        if(!input||input!==code){valid=false;captchaInput.classList.add('invalid');showMessage('Validación','Código de verificación incorrecto');}
+      }
       if(!valid){e.preventDefault();return}
       e.preventDefault();
       var stopLoading=showLoading('Enviando denuncia...');
@@ -389,7 +401,42 @@ document.addEventListener('DOMContentLoaded',function(){
           var fd=new FormData(form);var data={};fd.forEach(function(v,k){
             if(v&&v.name){data[k]=v.name}else{data[k]=v}
           });
-          return fetch(API_BASE+'/api/denuncias',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fecha:data.fecha,hora:data.hora,image:img,data:data,attachments:att})});
+          data.tipo_corrupcion=!!(tipoCorr&&tipoCorr.checked);
+          data.tipo_negativa_informacion=!!(tipoNeg&&tipoNeg.checked);
+          var rv=document.querySelector('input[name="reserva_identidad"]:checked');
+          data.reserva_identidad=rv?rv.value:'';
+          var payload={
+            fecha:data.fecha_hecho,
+            hora:data.hora_aproximada,
+            image:img,
+            data:data,
+            attachments:att,
+            apellidos_nombres:data.apellidos_nombres,
+            ci:data.ci,
+            departamento:data.departamento,
+            direccion:data.direccion,
+            correo_electronico:data.correo_electronico,
+            telefono:data.telefono,
+            grado_apellidos_nombres:data.grado_apellidos_nombres,
+            lugar_hecho:data.lugar_hecho,
+            unidad_policial:data.unidad_policial,
+            cargo_funcion:data.cargo_funcion,
+            departamento_denunciado:data.departamento_denunciado,
+            tipo_corrupcion:data.tipo_corrupcion,
+            tipo_negativa_informacion:data.tipo_negativa_informacion,
+            relato:data.relato,
+            fecha_hecho:data.fecha_hecho,
+            hora_aproximada:data.hora_aproximada,
+            documentos_adjuntos:data.documentos_adjuntos,
+            numero_hojas:data.numero_hojas,
+            reserva_identidad:data.reserva_identidad,
+            acepta_confidencialidad:!!data.acepta_confidencialidad,
+            acepta_articulo_166:!!data.acepta_articulo_166,
+            firma:data.firma,
+            fecha_firma:data.fecha_firma,
+            recibido_por:data.recibido_por
+          };
+          return fetch(API_BASE+'/api/denuncias',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
         });
       }).then(function(){
         stopLoading();

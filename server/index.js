@@ -68,6 +68,30 @@ async function ensureSchema() {
       created_at TIMESTAMP DEFAULT NOW()
     );
     ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS attachments JSONB;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS apellidos_nombres TEXT;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS ci TEXT;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS departamento TEXT;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS direccion TEXT;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS correo_electronico TEXT;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS telefono TEXT;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS grado_apellidos_nombres TEXT;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS lugar_hecho TEXT;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS unidad_policial TEXT;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS cargo_funcion TEXT;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS departamento_denunciado TEXT;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS tipo_corrupcion BOOLEAN;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS tipo_negativa_informacion BOOLEAN;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS relato TEXT;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS fecha_hecho DATE;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS hora_aproximada TEXT;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS documentos_adjuntos TEXT;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS numero_hojas TEXT;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS reserva_identidad TEXT;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS acepta_confidencialidad BOOLEAN;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS acepta_articulo_166 BOOLEAN;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS firma TEXT;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS fecha_firma DATE;
+    ALTER TABLE denuncias ADD COLUMN IF NOT EXISTS recibido_por TEXT;
   `);
 }
 
@@ -201,12 +225,63 @@ app.post('/api/footer', async (req, res) => {
 
 // Denuncias
 app.post('/api/denuncias', async (req, res) => {
-  const { fecha, hora, image, data, attachments } = req.body;
+  const {
+    fecha,
+    hora,
+    image,
+    data,
+    attachments,
+    apellidos_nombres,
+    ci,
+    departamento,
+    direccion,
+    correo_electronico,
+    telefono,
+    grado_apellidos_nombres,
+    lugar_hecho,
+    unidad_policial,
+    cargo_funcion,
+    departamento_denunciado,
+    tipo_corrupcion,
+    tipo_negativa_informacion,
+    relato,
+    fecha_hecho,
+    hora_aproximada,
+    documentos_adjuntos,
+    numero_hojas,
+    reserva_identidad,
+    acepta_confidencialidad,
+    acepta_articulo_166,
+    firma,
+    fecha_firma,
+    recibido_por
+  } = req.body;
   if (!fecha || !image) return res.status(400).json({ error: 'campos requeridos' });
-  const { rows } = await pool.query(
-    'INSERT INTO denuncias (fecha, hora, image, data, attachments) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-    [fecha, hora || null, image, data || null, attachments || null]
-  );
+  const insert = `
+    INSERT INTO denuncias (
+      fecha, hora, image, data, attachments,
+      apellidos_nombres, ci, departamento, direccion, correo_electronico, telefono,
+      grado_apellidos_nombres, lugar_hecho, unidad_policial, cargo_funcion, departamento_denunciado,
+      tipo_corrupcion, tipo_negativa_informacion, relato,
+      fecha_hecho, hora_aproximada, documentos_adjuntos, numero_hojas, reserva_identidad,
+      acepta_confidencialidad, acepta_articulo_166, firma, fecha_firma, recibido_por
+    ) VALUES (
+      $1,$2,$3,$4,$5,
+      $6,$7,$8,$9,$10,$11,
+      $12,$13,$14,$15,$16,
+      $17,$18,$19,
+      $20,$21,$22,$23,$24,
+      $25,$26,$27,$28,$29
+    ) RETURNING *`;
+  const params = [
+    fecha, hora || null, image, data || null, attachments || null,
+    apellidos_nombres || null, ci || null, departamento || null, direccion || null, correo_electronico || null, telefono || null,
+    grado_apellidos_nombres || null, lugar_hecho || null, unidad_policial || null, cargo_funcion || null, departamento_denunciado || null,
+    !!tipo_corrupcion, !!tipo_negativa_informacion, relato || null,
+    fecha_hecho || fecha || null, hora_aproximada || hora || null, documentos_adjuntos || null, numero_hojas || null, reserva_identidad || null,
+    !!acepta_confidencialidad, !!acepta_articulo_166, firma || null, fecha_firma || null, recibido_por || null
+  ];
+  const { rows } = await pool.query(insert, params);
   res.json(rows[0]);
 });
 app.get('/api/denuncias', async (req, res) => {
@@ -226,6 +301,36 @@ app.get('/api/denuncias/:id', async (req, res) => {
   const { rows } = await pool.query('SELECT * FROM denuncias WHERE id = $1', [req.params.id]);
   if (!rows.length) return res.status(404).json({ error: 'denuncia no encontrada' });
   res.json(rows[0]);
+});
+
+app.put('/api/denuncias/:id', async (req, res) => {
+  const id = req.params.id;
+  const fields = [
+    'fecha','hora','image','data','attachments',
+    'apellidos_nombres','ci','departamento','direccion','correo_electronico','telefono',
+    'grado_apellidos_nombres','lugar_hecho','unidad_policial','cargo_funcion','departamento_denunciado',
+    'tipo_corrupcion','tipo_negativa_informacion','relato',
+    'fecha_hecho','hora_aproximada','documentos_adjuntos','numero_hojas','reserva_identidad',
+    'acepta_confidencialidad','acepta_articulo_166','firma','fecha_firma','recibido_por'
+  ];
+  const updates = [];
+  const params = [];
+  fields.forEach((k) => {
+    if (Object.prototype.hasOwnProperty.call(req.body, k)) {
+      params.push(req.body[k]);
+      updates.push(`${k} = $${params.length}`);
+    }
+  });
+  if (!updates.length) return res.status(400).json({ error: 'sin cambios' });
+  params.push(id);
+  const q = `UPDATE denuncias SET ${updates.join(', ')} WHERE id = $${params.length} RETURNING *`;
+  const { rows } = await pool.query(q, params);
+  res.json(rows[0]);
+});
+
+app.delete('/api/denuncias/:id', async (req, res) => {
+  await pool.query('DELETE FROM denuncias WHERE id = $1', [req.params.id]);
+  res.json({ ok: true });
 });
 
 // Serve static
