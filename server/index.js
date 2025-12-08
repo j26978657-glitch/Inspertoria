@@ -71,10 +71,11 @@ async function ensureSchema() {
   `);
 }
 
-app.use('/api', (req,res,next)=>{
+app.use('/api', (req,res,next)=>{ 
   if(pool) return next();
   if(req.method === 'GET'){
     const p = req.path || '';
+    if(p.startsWith('/health')) return res.json({ db: false, reason: 'no_database_url' });
     if(p.startsWith('/integridad/config')) return res.json({ size: '16px', color: '#111827' });
     if(p.startsWith('/footer')) return res.json({});
     return res.json([]);
@@ -83,12 +84,17 @@ app.use('/api', (req,res,next)=>{
 });
 
 app.get('/api/health', async (req, res) => {
+  res.type('application/json');
   if(!pool) return res.json({ db: false, reason: 'no_database_url' });
+  const timeoutMs = 3000;
   try{
-    await pool.query('SELECT 1');
-    res.json({ db: true });
+    await Promise.race([
+      pool.query('SELECT 1'),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeoutMs))
+    ]);
+    return res.json({ db: true });
   }catch(e){
-    res.status(503).json({ db: false, error: e.message });
+    return res.status(503).json({ db: false, error: e.message === 'timeout' ? 'timeout' : e.message });
   }
 });
 

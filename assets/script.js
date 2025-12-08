@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded',function(){
     if(adminDenTo&&adminDenTo.value)params.push('to='+adminDenTo.value);
     if(params.length)url+='?'+params.join('&');
     var stop=showLoading('Cargando denuncias...');
-    fetch(url).then(function(r){if(!r.ok)throw new Error('fail');return r.json()}).then(function(items){
+    fetch(url).then(function(r){return r.ok ? r.json().catch(function(){return []}) : []}).then(function(items){
       items=Array.isArray(items)?items:[];
       tbody.innerHTML=items.map(function(d){
         return '<tr><td>'+(d.fecha||'')+'</td><td>'+(d.hora||'')+'</td>'+
@@ -182,7 +182,10 @@ document.addEventListener('DOMContentLoaded',function(){
         });
       });
       stop();
-    }).catch(function(){if(tbody)tbody.innerHTML='';try{stop()}catch(e){};showMessage('Error','No se pudieron cargar las denuncias');});
+    }).catch(function(){
+      if(tbody)tbody.innerHTML='';
+      try{stop()}catch(e){}
+    });
   }
   if(adminDenTable){renderAdminDenuncias()}
   if(adminDenSearch){adminDenSearch.addEventListener('click',function(){renderAdminDenuncias()})}
